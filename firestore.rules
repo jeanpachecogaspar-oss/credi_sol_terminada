@@ -1,0 +1,233 @@
+rules_version = '2';
+
+// Reglas de seguridad de la app de préstamos.
+// Publicar en: Firebase Console > Firestore Database > Reglas > pegar > Publicar.
+//
+// IMPORTANTE: la tasa y los límites de `solicitudValida` deben coincidir con
+// lib/config_prestamos.dart. Si cambias uno, cambia el otro.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------------- Utilidades ----------------
+
+    function autenticado() {
+      return request.auth != null;
+    }
+
+    function esYo(uid) {
+      return autenticado() && request.auth.uid == uid;
+    }
+
+    function rutaPerfil() {
+      return /databases/$(database)/documents/usuarios/$(request.auth.uid);
+    }
+
+    function esAdmin() {
+      return autenticado() && exists(rutaPerfil()) && get(rutaPerfil()).data.rol == 'admin';
+    }
+
+    function esCliente() {
+      return autenticado() && exists(rutaPerfil()) && get(rutaPerfil()).data.rol == 'cliente';
+    }
+
+    function cambia() {
+      return request.resource.data.diff(resource.data).affectedKeys();
+    }
+
+    // ---------------- Usuarios ----------------
+
+    // Campos que el propio cliente puede escribir. Nunca incluye `rol` ni `email`.
+    function camposPerfilCliente() {
+      return ['nombre', 'ubicacion', 'aceptoUbicacion',
+              'dni', 'celular', 'fechaNacimiento', 'direccion', 'distrito',
+              'ocupacion', 'ingresoMensual',
+              'consentimientoDatos', 'fechaConsentimiento', 'versionConsentimiento',
+              'fechaActualizacion', 'fotosVerificacion'];
+    }
+
+    function ubicacionValida(u) {
+      return u is map
+        && u.keys().hasOnly(['lat', 'lng', 'precision', 'fecha'])
+        && u.lat is number && u.lat >= -90 && u.lat <= 90
+        && u.lng is number && u.lng >= -180 && u.lng <= 180;
+    }
+
+    function perfilValido(d) {
+      return (!('nombre' in d) || (d.nombre is string && d.nombre.size() >= 2 && d.nombre.size() <= 100))
+        && (!('dni' in d) || (d.dni is string && d.dni.matches('^[0-9]{8}$')))
+        && (!('celular' in d) || (d.celular is string && d.celular.matches('^9[0-9]{8}$')))
+        && (!('direccion' in d) || (d.direccion is string && d.direccion.size() <= 200))
+        && (!('distrito' in d) || (d.distrito is string && d.distrito.size() <= 100))
+        && (!('ocupacion' in d) || (d.ocupacion is string && d.ocupacion.size() <= 100))
+        && (!('ingresoMensual' in d) || (d.ingresoMensual is number && d.ingresoMensual >= 0))
+        // Mayor de edad (aprox. 18 años; la app valida la fecha exacta).
+        && (!('fechaNacimiento' in d) || (d.fechaNacimiento is timestamp
+                && d.fechaNacimiento < request.time - duration.value(6570, 'd')))
+        && (!('consentimientoDatos' in d) || d.consentimientoDatos is bool)
+        && (!('versionConsentimiento' in d) || d.versionConsentimiento is string)
+        && (!('fotosVerificacion' in d) || (d.fotosVerificacion is map
+                && d.fotosVerificacion.keys().hasOnly(['selfie', 'dni_frontal', 'dni_posterior', 'recibo_servicio'])))
+        && (!('aceptoUbicacion' in d) || d.aceptoUbicacion is bool)
+        && (!('ubicacion' in d) || ubicacionValida(d.ubicacion));
+    }
+
+    match /usuarios/{uid} {
+      allow get: if esYo(uid) || esAdmin();
+      allow list: if esAdmin();
+
+      // Registro: todo usuario nuevo es cliente.
+      allow create: if esYo(uid)
+        && request.resource.data.rol == 'cliente'
+        && request.resource.data.email is string
+        && (!('dniVerificado' in request.resource.data) || request.resource.data.dniVerificado is bool)
+        && request.resource.data.keys().hasOnly([
+             'nombre', 'email', 'rol', 'aceptoUbicacion', 'ubicacion', 'fechaRegistro', 'dniVerificado',
+             'dni', 'celular', 'fechaNacimiento', 'direccion', 'distrito',
+             'ocupacion', 'ingresoMensual',
+             'consentimientoDatos', 'fechaConsentimiento', 'versionConsentimiento',
+             'fechaActualizacion', 'fotosVerificacion'])
+        && perfilValido(request.resource.data);
+
+      // El cliente edita solo sus campos permitidos; el administrador puede cambiar roles.
+      // DNI y fecha de nacimiento no se pueden cambiar una vez registrados.
+      allow update: if (esYo(uid)
+                        && cambia().hasOnly(camposPerfilCliente())
+                        && perfilValido(request.resource.data)
+                        && (!('dni' in resource.data) || !cambia().hasAny(['dni']))
+                        && (!('fechaNacimiento' in resource.data) || !cambia().hasAny(['fechaNacimiento'])))
+                    || (esAdmin() && request.resource.data.rol in ['cliente', 'admin']);
+
+      allow delete: if false;
+
+      // Fotos de identidad y recibo de servicios, en base64 porque el plan Spark no incluye Storage.
+      match /documentos/{tipo} {
+        allow read: if esYo(uid) || esAdmin();
+        allow create, update: if esYo(uid)
+          && tipo in ['selfie', 'dni_frontal', 'dni_posterior', 'recibo_servicio']
+          && request.resource.data.keys().hasOnly(['tipo', 'imagenBase64', 'mime', 'bytes', 'fecha', 'validacion'])
+          // Resultado de la validación hecha en el celular (ML Kit + GPS). Lo revisa el administrador.
+          && (!('validacion' in request.resource.data) || request.resource.data.validacion is map)
+          && request.resource.data.tipo == tipo
+          && request.resource.data.imagenBase64 is string
+          && request.resource.data.imagenBase64.size() <= 250000
+          && request.resource.data.bytes is int && request.resource.data.bytes <= 190000
+          && request.resource.data.mime in ['image/jpeg', 'image/webp'];
+        allow delete: if esAdmin();
+      }
+    }
+
+    // ---------------- Préstamos ----------------
+
+    function solicitudValida(d) {
+      return d.keys().hasOnly([
+               'clienteId', 'clienteNombre', 'clienteEmail', 'monto', 'tasa', 'tasaAnual',
+               'plazoMeses', 'cuotaMensual', 'totalAPagar', 'totalIntereses', 'saldoPendiente',
+               'tcea', 'destino', 'estado', 'fechaSolicitud',
+               'productoId', 'productoNombre', 'ruc', 'razonSocial', 'ubicacionNegocio'])
+        && (!('ubicacionNegocio' in d) || (d.ubicacionNegocio is map
+              && d.ubicacionNegocio.keys().hasOnly(['lat', 'lng', 'direccion'])
+              && d.ubicacionNegocio.lat is number && d.ubicacionNegocio.lng is number))
+        && (!('ruc' in d) || (d.ruc is string && d.ruc.matches('^[0-9]{11}$')))
+        && (!('productoNombre' in d) || (d.productoNombre is string && d.productoNombre.size() <= 100))
+        && d.keys().hasAll(['clienteId', 'monto', 'tasa', 'tasaAnual', 'plazoMeses', 'estado', 'fechaSolicitud'])
+        && d.clienteId == request.auth.uid
+        && d.estado == 'Pendiente'
+        && d.fechaSolicitud == request.time
+        && d.monto is number && d.monto >= 300 && d.monto <= 10000
+        && d.plazoMeses is int && d.plazoMeses >= 1 && d.plazoMeses <= 24
+        && d.tasa == 60 && d.tasaAnual == true
+        && (!('destino' in d) || (d.destino is string && d.destino.size() <= 200))
+        && (!('clienteNombre' in d) || (d.clienteNombre is string && d.clienteNombre.size() <= 100));
+    }
+
+    function rutaDocumento(tipo) {
+      return /databases/$(database)/documents/usuarios/$(request.auth.uid)/documentos/$(tipo);
+    }
+
+    // Se evalúa con el estado posterior al lote (getAfter/existsAfter), porque la
+    // app guarda datos personales, fotos y solicitud en una sola escritura atómica.
+    function perfilListoParaSolicitar() {
+      let p = getAfter(rutaPerfil()).data;
+      return p.keys().hasAll(['nombre', 'dni', 'fechaNacimiento', 'celular', 'direccion',
+                              'distrito', 'ocupacion', 'ingresoMensual'])
+        && p.get('consentimientoDatos', false) == true
+        && existsAfter(rutaDocumento('selfie'))
+        && existsAfter(rutaDocumento('dni_frontal'))
+        && existsAfter(rutaDocumento('dni_posterior'))
+        && existsAfter(rutaDocumento('recibo_servicio'));
+    }
+
+    match /prestamos/{pid} {
+      // Las consultas del cliente deben filtrar por clienteId == su uid.
+      allow read: if esAdmin() || (autenticado() && resource.data.clienteId == request.auth.uid);
+
+      // El cliente solo presenta solicitudes; el administrador no crea préstamos.
+      allow create: if esCliente()
+        && solicitudValida(request.resource.data)
+        && perfilListoParaSolicitar();
+
+      // Aprobar, rechazar y actualizar saldos: solo el administrador.
+      // El cliente solo puede cancelar su propia solicitud mientras siga pendiente.
+      allow update: if esAdmin()
+        || (autenticado()
+            && resource.data.clienteId == request.auth.uid
+            && resource.data.estado == 'Pendiente'
+            && request.resource.data.estado == 'Cancelado'
+            && cambia().hasOnly(['estado', 'fechaCancelacion'])
+            && request.resource.data.fechaCancelacion == request.time);
+      allow delete: if false;
+
+      function prestamo() {
+        return get(/databases/$(database)/documents/prestamos/$(pid)).data;
+      }
+
+      // El cliente solo puede pasar una cuota de 'Pendiente' a 'Por verificar'
+      // en un préstamo propio y activo. Solo el administrador la marca 'Pagada'.
+      function reportePagoValido() {
+        let p = prestamo();
+        let n = request.resource.data;
+        return autenticado()
+          && p.clienteId == request.auth.uid
+          && p.estado == 'Activo'
+          && resource.data.estado == 'Pendiente'
+          && n.estado == 'Por verificar'
+          && cambia().hasOnly(['estado', 'medioPago', 'numeroOperacion', 'fechaPago'])
+          && n.medioPago in ['Yape', 'Plin', 'Transferencia']
+          && n.numeroOperacion is string
+          && n.numeroOperacion.size() >= 4 && n.numeroOperacion.size() <= 40
+          && n.fechaPago == request.time;
+      }
+
+      match /cuotas/{cid} {
+        allow read: if esAdmin() || (autenticado() && prestamo().clienteId == request.auth.uid);
+        allow create, delete: if esAdmin();
+        allow update: if esAdmin() || reportePagoValido();
+      }
+    }
+
+    // Consultas collectionGroup('cuotas') del panel y de cobranzas: solo el administrador.
+    match /{ruta=**}/cuotas/{cid} {
+      allow read: if esAdmin();
+    }
+
+    // ---------------- Productos financieros y campañas ----------------
+
+    // Catálogo de créditos: lo ven todos los usuarios con sesión; solo el administrador lo edita.
+    match /productosFinancieros/{id} {
+      allow read: if autenticado();
+      allow write: if esAdmin();
+    }
+
+    // Promociones / campañas: las "para todos" las ve cualquier cliente; las dirigidas,
+    // solo los clientes cuyo uid está en `clientes`.
+    match /promociones/{id} {
+      allow read: if esAdmin()
+        || (autenticado() && (resource.data.para == 'todos'
+                              || request.auth.uid in resource.data.clientes));
+      allow write: if esAdmin();
+    }
+
+    // Todo lo demás (incluidas las colecciones antiguas `clientes` y `pagos`) queda bloqueado.
+  }
+}

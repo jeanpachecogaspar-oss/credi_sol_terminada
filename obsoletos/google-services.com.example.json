@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1046868855128",
+    "project_id": "pahecogasparjean",
+    "storage_bucket": "pahecogasparjean.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1046868855128:android:f6c17fb8a0296a3101bd2d",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDLRo8bLnzER_rzu3v323W-lKCh-RauWfQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
