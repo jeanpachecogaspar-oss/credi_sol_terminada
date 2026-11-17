@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CrediSol · Panel administrativo</title>
+<link rel="icon" href="logo.png">
+<style>
+  :root{
+    --azul:#1E88E5; --azul-osc:#1565C0; --dorado:#F2B705; --verde:#2E9E6B; --rojo:#E53935; --ambar:#B38600;
+    --gris:#6B7A90; --fondo:#F4F7FC; --texto:#1A1A2E; --borde:#E3E8F0; --blanco:#fff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--fondo);color:var(--texto);font-size:14px}
+  button{font:inherit;cursor:pointer}
+  input,select,textarea{font:inherit;padding:9px 11px;border:1px solid var(--borde);border-radius:10px;background:#F7F8FA;width:100%;color:var(--texto)}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--azul);outline-offset:-1px;background:#fff}
+  label{display:block;font-size:12.5px;color:var(--gris);margin:10px 0 4px;font-weight:600}
+  .btn{border:0;border-radius:10px;padding:9px 14px;font-weight:600;background:var(--azul);color:#fff}
+  .btn:hover{background:var(--azul-osc)}
+  .btn.sec{background:#fff;color:var(--azul);border:1px solid var(--azul)}
+  .btn.ok{background:var(--verde)} .btn.mal{background:var(--rojo)} .btn.peq{padding:5px 10px;font-size:12.5px}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .oculto{display:none!important}
+
+  /* Login */
+  #login{min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,var(--azul-osc),var(--azul))}
+  .caja-login{background:#fff;padding:32px;border-radius:22px;width:min(380px,92vw);box-shadow:0 20px 50px rgba(0,0,0,.18)}
+  .marca{display:flex;align-items:center;gap:10px;font-weight:800;font-size:22px}
+  .marca img{width:40px;height:40px}
+  .error{color:var(--rojo);font-size:13px;margin-top:10px;min-height:18px}
+
+  /* Layout */
+  #app{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+  nav{background:#fff;border-right:1px solid var(--borde);padding:18px 12px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column}
+  nav .marca{font-size:19px;padding:0 8px 18px}
+  nav button{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;padding:10px 12px;border-radius:10px;text-align:left;color:var(--texto);font-weight:600}
+  nav button.activo{background:rgba(30,136,229,.12);color:var(--azul)}
+  nav button .n{margin-left:auto;background:var(--rojo);color:#fff;border-radius:20px;font-size:11px;padding:1px 7px}
+  nav .pie{margin-top:auto;font-size:12px;color:var(--gris);padding:8px}
+  main{padding:24px 28px;min-width:0}
+  .cab{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+  .cab h1{font-size:22px;margin:0}
+  .vivo{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--verde);font-weight:700;background:rgba(46,158,107,.12);padding:4px 10px;border-radius:20px}
+  .vivo::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--verde);animation:latido 1.4s infinite}
+  @keyframes latido{50%{opacity:.25}}
+  .esp{flex:1}
+
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:18px}
+  .kpi{background:#fff;border-radius:18px;padding:16px;box-shadow:0 6px 16px rgba(30,136,229,.06)}
+  .kpi .t{color:var(--gris);font-size:12.5px} .kpi .v{font-size:24px;font-weight:800;margin-top:4px}
+  .tarjeta{background:#fff;border-radius:18px;padding:16px;box-shadow:0 6px 16px rgba(30,136,229,.06);margin-bottom:16px}
+  .tarjeta h3{margin:0 0 12px;font-size:15px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:9px 10px;border-bottom:1px solid var(--borde);text-align:left;vertical-align:middle}
+  th{font-size:12px;color:var(--gris);font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+  tr:hover td{background:#FAFBFE}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  .chip{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700}
+  .c-azul{background:rgba(30,136,229,.14);color:var(--azul)} .c-verde{background:rgba(46,158,107,.14);color:var(--verde)}
+  .c-rojo{background:rgba(229,57,53,.14);color:var(--rojo)} .c-ambar{background:rgba(179,134,0,.14);color:var(--ambar)}
+  .c-gris{background:rgba(107,122,144,.14);color:var(--gris)}
+  .vacio{color:var(--gris);text-align:center;padding:26px}
+  .acc{display:flex;gap:6px;flex-wrap:wrap}
+  .barras{display:flex;align-items:flex-end;gap:14px;height:160px;padding-top:10px}
+  .barra{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px}
+  .barra div{width:100%;max-width:60px;border-radius:8px 8px 0 0;transition:height .4s}
+  .switch{position:relative;width:40px;height:22px;display:inline-block}
+  .switch input{opacity:0;width:0;height:0}
+  .switch span{position:absolute;inset:0;background:#cfd6e2;border-radius:22px;transition:.2s}
+  .switch span::before{content:"";position:absolute;width:16px;height:16px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+  .switch input:checked+span{background:var(--verde)} .switch input:checked+span::before{transform:translateX(18px)}
+  dialog{border:0;border-radius:20px;padding:0;width:min(560px,94vw);box-shadow:0 30px 60px rgba(0,0,0,.25)}
+  dialog::backdrop{background:rgba(10,20,40,.45)}
+  dialog form{padding:22px}
+  dialog h2{margin:0 0 6px;font-size:19px}
+  .fila{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .pie-dlg{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--texto);color:#fff;padding:11px 18px;border-radius:12px;z-index:99;box-shadow:0 10px 24px rgba(0,0,0,.25)}
+  .lista-chk{max-height:180px;overflow:auto;border:1px solid var(--borde);border-radius:10px;padding:6px 10px}
+  .lista-chk label{display:flex;align-items:center;gap:8px;color:var(--texto);font-weight:500;margin:4px 0}
+  .lista-chk input{width:auto}
+  .mini{font-size:12px;color:var(--gris)}
+  img.prod{width:36px;height:36px;object-fit:contain;border-radius:8px;background:#F2F5FA}
+  @media (max-width:860px){#app{grid-template-columns:1fr} nav{position:static;height:auto;flex-direction:row;flex-wrap:wrap} nav .pie{display:none} .grid2,.fila{grid-template-columns:1fr} main{padding:16px}}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<section id="login" class="oculto">
+  <form class="caja-login" id="formLogin">
+    <div class="marca"><img src="logo.png" alt="" onerror="this.remove()">CrediSol</div>
+    <p class="mini" style="margin:6px 0 14px">Panel administrativo web. Ingresa con tu cuenta de administrador de la app.</p>
+    <label for="correo">Correo</label>
+    <input id="correo" type="email" autocomplete="username" required>
+    <label for="clave">Contraseña</label>
+    <input id="clave" type="password" autocomplete="current-password" required>
+    <button class="btn" style="width:100%;margin-top:18px" id="btnEntrar">Ingresar</button>
+    <div class="error" id="errLogin"></div>
+  </form>
+</section>
+
+<!-- ============ APP ============ -->
+<section id="app" class="oculto">
+  <nav>
+    <div class="marca"><img src="logo.png" alt="" onerror="this.remove()">CrediSol</div>
+    <button data-v="resumen" class="activo">📊 Resumen</button>
+    <button data-v="productos">💼 Productos</button>
+    <button data-v="promos">🎁 Promociones</button>
+    <button data-v="solicitudes">📥 Solicitudes <span class="n oculto" id="nSol"></span></button>
+    <button data-v="cobranzas">💳 Cobranzas <span class="n oculto" id="nCob"></span></button>
+    <button data-v="clientes">👥 Clientes</button>
+    <button data-v="grupos">🤝 Banca comunal <span class="n oculto" id="nGru"></span></button>
+    <div class="pie"><div id="quien"></div><button class="btn sec peq" id="btnSalir" style="margin-top:8px">Cerrar sesión</button></div>
+  </nav>
+  <main>
+    <div class="cab"><h1 id="titulo">Resumen</h1><span class="vivo">En vivo</span><span class="esp"></span><span id="accionesCab"></span></div>
+
+    <!-- Resumen -->
+    <div data-vista="resumen">
+      <div class="kpis" id="kpis"></div>
+      <div class="grid2">
+        <div class="tarjeta"><h3>Préstamos por estado</h3><div class="barras" id="graf"></div></div>
+        <div class="tarjeta"><h3>Últimas solicitudes</h3><div id="ultimas"></div></div>
+      </div>
+    </div>
+
+    <!-- Productos -->
+    <div data-vista="productos" class="oculto">
+      <div class="tarjeta"><table><thead><tr><th></th><th>Producto</th><th>Categoría</th><th class="num">Monto</th><th class="num">Plazo</th><th>Activo</th><th></th></tr></thead><tbody id="tProductos"></tbody></table></div>
+    </div>
+
+    <!-- Promociones -->
+    <div data-vista="promos" class="oculto">
+      <div class="tarjeta"><table><thead><tr><th>Campaña</th><th>Beneficio</th><th>Para</th><th>Vence</th><th>Activa</th><th></th></tr></thead><tbody id="tPromos"></tbody></table></div>
+    </div>
+
+    <!-- Solicitudes -->
+    <div data-vista="solicitudes" class="oculto">
+      <div class="tarjeta"><h3>Pendientes de evaluación</h3><table><thead><tr><th>Fecha</th><th>Cliente</th><th>Producto</th><th class="num">Monto</th><th class="num">Plazo</th><th class="num">Cuota</th><th></th></tr></thead><tbody id="tSolicitudes"></tbody></table></div>
+      <div class="tarjeta"><h3>Préstamos activos</h3><table><thead><tr><th>Cliente</th><th class="num">Monto</th><th class="num">Cuotas pagadas</th><th class="num">Saldo</th><th>Estado</th></tr></thead><tbody id="tActivos"></tbody></table></div>
+    </div>
+
+    <!-- Cobranzas -->
+    <div data-vista="cobranzas" class="oculto">
+      <div class="tarjeta"><h3>Pagos reportados por verificar</h3><table><thead><tr><th>Cliente</th><th class="num">Cuota N.°</th><th class="num">Monto</th><th>Medio</th><th>N.° operación</th><th>Reportado</th><th></th></tr></thead><tbody id="tCobranzas"></tbody></table></div>
+    </div>
+
+    <!-- Clientes -->
+    <div data-vista="clientes" class="oculto">
+      <div class="tarjeta"><input id="buscarCli" placeholder="Buscar por nombre, DNI o correo" style="margin-bottom:10px"><table><thead><tr><th>Nombre</th><th>DNI</th><th>Celular</th><th>Correo</th><th>Rol</th><th></th></tr></thead><tbody id="tClientes"></tbody></table></div>
+    </div>
+
+    <!-- Banca comunal -->
+    <div data-vista="grupos" class="oculto">
+      <div class="tarjeta"><table><thead><tr><th>Grupo</th><th>Código</th><th>Integrantes</th><th class="num">Total</th><th class="num">Plazo</th><th>Estado</th><th></th></tr></thead><tbody id="tGrupos"></tbody></table></div>
+    </div>
+  </main>
+</section>
+
+<!-- Diálogo producto -->
+<dialog id="dlgProducto"><form method="dialog" id="fProducto">
+  <h2 id="dlgProdTit">Producto</h2>
+  <label>Nombre</label><input name="nombre" required maxlength="80">
+  <div class="fila">
+    <div><label>Categoría</label><select name="categoria">
+      <option>Capital de trabajo</option><option>Activo fijo</option><option>Agropecuario</option><option>Personal</option><option>Especiales</option></select></div>
+    <div><label>Público</label><input name="publico" maxlength="80" placeholder="Ej. Bodegueros"></div>
+  </div>
+  <label>Descripción</label><textarea name="descripcion" rows="2" maxlength="400"></textarea>
+  <div class="fila">
+    <div><label>Monto mínimo (S/)</label><input name="montoMin" type="number" min="300" max="10000" step="50" required></div>
+    <div><label>Monto máximo (S/)</label><input name="montoMax" type="number" min="300" max="10000" step="50" required></div>
+  </div>
+  <div class="fila">
+    <div><label>Plazo mínimo (meses)</label><input name="plazoMin" type="number" min="1" max="24" required></div>
+    <div><label>Plazo máximo (meses)</label><input name="plazoMax" type="number" min="1" max="24" required></div>
+  </div>
+  <label>Imagen (assets/creditos/xxx.png o enlace de Google Drive)</label><input name="imagen" placeholder="assets/creditos/money_bag.png">
+  <label>Requisitos (uno por línea; vacío = los de la categoría)</label><textarea name="requisitos" rows="3"></textarea>
+  <label style="display:flex;align-items:center;gap:8px"><input type="checkbox" name="activo" style="width:auto"> Visible para los clientes</label>
+  <div class="pie-dlg"><button class="btn sec" value="cancel" formnovalidate>Cancelar</button><button class="btn" value="ok">Guardar</button></div>
+</form></dialog>
+
+<!-- Diálogo promoción -->
+<dialog id="dlgPromo"><form method="dialog" id="fPromo">
+  <h2 id="dlgPromoTit">Campaña</h2>
+  <label>Título</label><input name="titulo" required maxlength="60">
+  <label>Descripción</label><textarea name="descripcion" rows="2" maxlength="300"></textarea>
+  <div class="fila">
+    <div><label>Tipo de beneficio</label><select name="tipo"><option value="porcentaje">% de descuento en intereses</option><option value="monto">Monto fijo (S/)</option></select></div>
+    <div><label>Valor</label><input name="valor" type="number" min="0" step="0.5" required></div>
+  </div>
+  <div class="fila">
+    <div><label>Monto mínimo del préstamo (S/)</label><input name="montoMinimo" type="number" min="0" step="50" value="0"></div>
+    <div><label>Vence (opcional)</label><input name="fechaFin" type="date"></div>
+  </div>
+  <label>Imagen (opcional)</label><input name="imagen">
+  <label>Para</label><select name="para"><option value="todos">Todos los clientes</option><option value="seleccionados">Clientes seleccionados</option></select>
+  <div id="cajaClientesPromo" class="oculto"><label>Clientes</label><div class="lista-chk" id="chkClientes"></div></div>
+  <label style="display:flex;align-items:center;gap:8px"><input type="checkbox" name="activo" style="width:auto"> Activa</label>
+  <div class="pie-dlg"><button class="btn sec" value="cancel" formnovalidate>Cancelar</button><button class="btn" value="ok">Guardar</button></div>
+</form></dialog>
+
+<div id="toast" class="toast oculto"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import {
+  getFirestore, collection, collectionGroup, doc, getDoc, getDocs, onSnapshot, query, where,
+  addDoc, updateDoc, deleteDoc, runTransaction, serverTimestamp, Timestamp, arrayUnion
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+// Proyecto Firebase de CrediSol (app web "CrediSol Panel Web"). Es la misma base de datos que usa la app móvil.
+const firebaseConfig = {
+  apiKey: "AIzaSyDuOYn--uQCKTR_8xtI-66bSCtzHj0olIY",
+  authDomain: "credisol-app.firebaseapp.com",
+  projectId: "credisol-app",
+  storageBucket: "credisol-app.firebasestorage.app",
+  messagingSenderId: "649754534417",
+  appId: "1:649754534417:web:b773144972ed407633c7b0"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Igual que lib/config_prestamos.dart
+const TASA = 60, TASA_ANUAL = true;
+
+// ---------------- utilidades ----------------
+const $ = (s) => document.querySelector(s);
+const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const num = (v) => (typeof v === "number" ? v : Number(v) || 0);
+const soles = (v) => "S/ " + num(v).toLocaleString("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fecha = (t) => { const d = t?.toDate ? t.toDate() : t instanceof Date ? t : null; return d ? d.toLocaleDateString("es-PE") : "—"; };
+const fechaHora = (t) => { const d = t?.toDate ? t.toDate() : null; return d ? d.toLocaleString("es-PE", { dateStyle: "short", timeStyle: "short" }) : "—"; };
+const colorEstado = (e) => ({ Activo: "c-azul", Pagado: "c-verde", Pagada: "c-verde", Aprobado: "c-verde", Rechazado: "c-rojo", Rechazada: "c-rojo", Vencida: "c-rojo", Pendiente: "c-ambar", "Por verificar": "c-ambar", Enviado: "c-ambar", Formando: "c-gris", Cancelado: "c-gris" }[e] || "c-gris");
+const chip = (e) => `<span class="chip ${colorEstado(e)}">${esc(e)}</span>`;
+function toast(t) { const el = $("#toast"); el.textContent = t; el.classList.remove("oculto"); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.add("oculto"), 3200); }
+function errorMsg(e) {
+  console.error(e);
+  const c = e?.code || "";
+  if (c.includes("permission-denied")) return "No tienes permiso (¿tu cuenta es administrador?).";
+  if (c.includes("invalid-credential") || c.includes("wrong-password") || c.includes("user-not-found")) return "Correo o contraseña incorrectos.";
+  if (c.includes("too-many-requests")) return "Demasiados intentos. Espera unos minutos.";
+  if (c.includes("network")) return "Sin conexión a internet.";
+  return e?.message || "Ocurrió un error.";
+}
+
+// ---------------- cronograma (igual que lib/cronograma.dart) ----------------
+const r2 = (v) => Math.round(v * 100) / 100;
+const tasaMensual = (t, anual) => (anual ? Math.pow(1 + t / 100, 1 / 12) - 1 : t / 100);
+function sumarMeses(f, meses) {
+  const total = f.getMonth() + meses;
+  const anio = f.getFullYear() + Math.floor(total / 12);
+  const mes = total % 12;
+  const ultimo = new Date(anio, mes + 1, 0).getDate();
+  return new Date(anio, mes, Math.min(f.getDate(), ultimo));
+}
+function generarCronograma(monto, tasa, anual, plazo, inicio) {
+  const i = tasaMensual(tasa, anual);
+  const cuotaFija = r2(i === 0 ? monto / plazo : (monto * i) / (1 - Math.pow(1 + i, -plazo)));
+  const lista = []; let saldo = monto;
+  for (let n = 1; n <= plazo; n++) {
+    const interes = r2(saldo * i);
+    const ultima = n === plazo;
+    const amort = ultima ? saldo : r2(cuotaFija - interes);
+    const cuota = r2(amort + interes);
+    saldo = ultima ? 0 : r2(saldo - amort);
+    lista.push({ numero: n, fecha: sumarMeses(inicio, n), cuota, interes, amortizacion: amort, saldo });
+  }
+  return lista;
+}
+function calcularTcea(monto, cuotas) {
+  if (monto <= 0 || !cuotas.length) return 0;
+  const vpn = (i) => cuotas.reduce((v, c, n) => v + c / Math.pow(1 + i, n + 1), -monto);
+  if (vpn(0) <= 0) return 0;
+  let bajo = 0, alto = 1;
+  for (let k = 0; k < 100; k++) { const m = (bajo + alto) / 2; if (vpn(m) > 0) bajo = m; else alto = m; }
+  return (Math.pow(1 + (bajo + alto) / 2, 12) - 1) * 100;
+}
+
+// ---------------- estado en vivo ----------------
+const datos = { prestamos: [], productos: [], promos: [], usuarios: [], porVerificar: [], grupos: [] };
+let desuscribir = [];
+
+// ---------------- sesión ----------------
+$("#formLogin").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  $("#errLogin").textContent = ""; $("#btnEntrar").disabled = true;
+  try { await signInWithEmailAndPassword(auth, $("#correo").value.trim(), $("#clave").value); }
+  catch (e) { $("#errLogin").textContent = errorMsg(e); }
+  finally { $("#btnEntrar").disabled = false; }
+});
+$("#btnSalir").addEventListener("click", () => signOut(auth));
+
+onAuthStateChanged(auth, async (user) => {
+  desuscribir.forEach((f) => f()); desuscribir = [];
+  if (!user) { $("#app").classList.add("oculto"); $("#login").classList.remove("oculto"); return; }
+  try {
+    const perfil = await getDoc(doc(db, "usuarios", user.uid));
+    if (perfil.data()?.rol !== "admin") {
+      $("#errLogin").textContent = "Esta cuenta no es de administrador.";
+      await signOut(auth); return;
+    }
+    $("#quien").textContent = perfil.data().nombre || user.email;
+  } catch (e) { $("#errLogin").textContent = errorMsg(e); await signOut(auth); return; }
+  $("#login").classList.add("oculto"); $("#app").classList.remove("oculto");
+  escuchar();
+});
+
+// Todas las vistas usan onSnapshot: cualquier cambio (desde la app o desde aquí) se ve al instante.
+function escuchar() {
+  const on = (q, clave) => desuscribir.push(onSnapshot(q, (s) => { datos[clave] = s.docs; pintar(); }, (e) => toast(errorMsg(e))));
+  on(collection(db, "prestamos"), "prestamos");
+  on(collection(db, "productosFinancieros"), "productos");
+  on(collection(db, "promociones"), "promos");
+  on(collection(db, "usuarios"), "usuarios");
+  on(query(collectionGroup(db, "cuotas"), where("estado", "==", "Por verificar")), "porVerificar");
+  on(collection(db, "gruposComunales"), "grupos");
+}
+
+// ---------------- navegación ----------------
+const titulos = { resumen: "Resumen", productos: "Productos financieros", promos: "Promociones", solicitudes: "Solicitudes", cobranzas: "Cobranzas", clientes: "Clientes", grupos: "Banca comunal" };
+let vista = "resumen";
+document.querySelectorAll("nav button[data-v]").forEach((b) => b.addEventListener("click", () => {
+  vista = b.dataset.v;
+  document.querySelectorAll("nav button[data-v]").forEach((x) => x.classList.toggle("activo", x === b));
+  document.querySelectorAll("[data-vista]").forEach((v) => v.classList.toggle("oculto", v.dataset.vista !== vista));
+  $("#titulo").textContent = titulos[vista];
+  pintarCabecera();
+}));
+function pintarCabecera() {
+  const cab = $("#accionesCab");
+  cab.innerHTML = vista === "productos" ? `<button class="btn" id="nuevoProd">+ Nuevo producto</button>`
+    : vista === "promos" ? `<button class="btn" id="nuevaPromo">+ Nueva campaña</button>` : "";
+  $("#nuevoProd")?.addEventListener("click", () => editarProducto(null));
+  $("#nuevaPromo")?.addEventListener("click", () => editarPromo(null));
+}
+
+function badge(id, n) { const el = $(id); el.textContent = n; el.classList.toggle("oculto", !n); }
+
+// ---------------- pintar ----------------
+function pintar() {
+  const P = datos.prestamos.map((d) => ({ id: d.id, ref: d.ref, ...d.data() }));
+  const pend = P.filter((p) => p.estado === "Pendiente").sort((a, b) => (b.fechaSolicitud?.seconds || 0) - (a.fechaSolicitud?.seconds || 0));
+  const activos = P.filter((p) => p.estado === "Activo");
+  const clientes = datos.usuarios.filter((u) => u.data().rol === "cliente");
+  const gruposEnv = datos.grupos.filter((g) => g.data().estado === "Enviado");
+  badge("#nSol", pend.length); badge("#nCob", datos.porVerificar.length); badge("#nGru", gruposEnv.length);
+
+  // KPIs
+  const capital = P.filter((p) => ["Activo", "Pagado"].includes(p.estado)).reduce((s, p) => s + num(p.monto), 0);
+  const porCobrar = activos.reduce((s, p) => s + num(p.saldoPendiente), 0);
+  const kp = [
+    ["Capital prestado", soles(capital)], ["Por cobrar", soles(porCobrar)], ["Préstamos activos", activos.length],
+    ["Solicitudes pendientes", pend.length], ["Pagos por verificar", datos.porVerificar.length], ["Clientes", clientes.length],
+    ["Productos activos", datos.productos.filter((d) => d.data().activo !== false).length], ["Grupos por evaluar", gruposEnv.length],
+  ];
+  $("#kpis").innerHTML = kp.map(([t, v]) => `<div class="kpi"><div class="t">${t}</div><div class="v">${esc(v)}</div></div>`).join("");
+
+  // Gráfico por estado
+  const estados = [["Pendiente", "var(--ambar)"], ["Activo", "var(--azul)"], ["Pagado", "var(--verde)"], ["Rechazado", "var(--rojo)"], ["Cancelado", "var(--gris)"]];
+  const cuenta = estados.map(([e]) => P.filter((p) => p.estado === e).length);
+  const max = Math.max(1, ...cuenta);
+  $("#graf").innerHTML = estados.map(([e, c], k) => `<div class="barra"><b>${cuenta[k]}</b><div style="height:${(cuenta[k] / max) * 110}px;background:${c}"></div>${e}</div>`).join("");
+  $("#ultimas").innerHTML = pend.length ? `<table>${pend.slice(0, 5).map((p) => `<tr><td>${esc(p.clienteNombre)}</td><td class="num">${soles(p.monto)}</td><td class="mini">${fechaHora(p.fechaSolicitud)}</td></tr>`).join("")}</table>` : `<div class="vacio">Sin solicitudes pendientes</div>`;
+
+  // Productos
+  const prods = datos.productos.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => (a.categoria || "").localeCompare(b.categoria || "") || (a.nombre || "").localeCompare(b.nombre || ""));
+  $("#tProductos").innerHTML = prods.length ? prods.map((p) => `<tr>
+      <td>${p.imagen && /^https?:/.test(p.imagen) ? `<img class="prod" src="${esc(p.imagen)}" alt="">` : `<span class="mini">${esc((p.imagen || "").split("/").pop().replace(".png", ""))}</span>`}</td>
+      <td><b>${esc(p.nombre)}</b><div class="mini">${esc(p.publico || "")}</div></td>
+      <td>${esc(p.categoria)}</td>
+      <td class="num">${soles(p.montoMin)} – ${soles(p.montoMax)}</td>
+      <td class="num">${num(p.plazoMin)}–${num(p.plazoMax)} m</td>
+      <td><label class="switch"><input type="checkbox" data-act="toggleProd" data-id="${p.id}" ${p.activo !== false ? "checked" : ""}><span></span></label></td>
+      <td class="acc"><button class="btn sec peq" data-act="editProd" data-id="${p.id}">Editar</button><button class="btn mal peq" data-act="delProd" data-id="${p.id}">Eliminar</button></td></tr>`).join("")
+    : `<tr><td colspan="7" class="vacio">No hay productos. Crea uno o usa "Cargar 40 productos de ejemplo" en la app (Admin › Créditos).</td></tr>`;
+
+  // Promociones
+  const promos = datos.promos.map((d) => ({ id: d.id, ...d.data() }));
+  $("#tPromos").innerHTML = promos.length ? promos.map((p) => `<tr>
+      <td><b>${esc(p.titulo)}</b><div class="mini">${esc(p.descripcion || "")}</div></td>
+      <td>${p.tipo === "monto" ? soles(p.valor) : num(p.valor) + " %"} dscto.</td>
+      <td>${p.para === "seleccionados" ? `${(p.clientes || []).length} cliente(s)` : "Todos"}</td>
+      <td>${p.fechaFin ? fecha(p.fechaFin) : "—"}</td>
+      <td><label class="switch"><input type="checkbox" data-act="togglePromo" data-id="${p.id}" ${p.activo !== false ? "checked" : ""}><span></span></label></td>
+      <td class="acc"><button class="btn sec peq" data-act="editPromo" data-id="${p.id}">Editar</button><button class="btn mal peq" data-act="delPromo" data-id="${p.id}">Eliminar</button></td></tr>`).join("")
+    : `<tr><td colspan="6" class="vacio">No hay campañas.</td></tr>`;
+
+  // Solicitudes
+  $("#tSolicitudes").innerHTML = pend.length ? pend.map((p) => `<tr>
+      <td class="mini">${fechaHora(p.fechaSolicitud)}</td>
+      <td><b>${esc(p.clienteNombre)}</b><div class="mini">${esc(p.clienteEmail || "")}${p.ruc ? " · RUC " + esc(p.ruc) : ""}</div></td>
+      <td>${esc(p.productoNombre || "Préstamo")}<div class="mini">${esc(p.destino || "")}</div></td>
+      <td class="num">${soles(p.monto)}</td><td class="num">${num(p.plazoMeses)} m</td><td class="num">${soles(p.cuotaMensual)}</td>
+      <td class="acc"><button class="btn ok peq" data-act="aprobar" data-id="${p.id}">Aprobar</button><button class="btn mal peq" data-act="rechazar" data-id="${p.id}">Rechazar</button></td></tr>`).join("")
+    : `<tr><td colspan="7" class="vacio">Sin solicitudes pendientes</td></tr>`;
+  $("#tActivos").innerHTML = activos.length ? activos.map((p) => `<tr><td>${esc(p.clienteNombre)}</td><td class="num">${soles(p.monto)}</td>
+      <td class="num">${num(p.cuotasPagadas)} / ${num(p.plazoMeses)}</td><td class="num">${soles(p.saldoPendiente)}</td><td>${chip(p.estado)}</td></tr>`).join("")
+    : `<tr><td colspan="5" class="vacio">Sin préstamos activos</td></tr>`;
+
+  // Cobranzas
+  $("#tCobranzas").innerHTML = datos.porVerificar.length ? datos.porVerificar.map((d) => { const c = d.data(); return `<tr>
+      <td>${esc(c.clienteNombre)}</td><td class="num">${num(c.numero)}</td><td class="num">${soles(c.cuota)}</td>
+      <td>${esc(c.medioPago)}</td><td>${esc(c.numeroOperacion)}</td><td class="mini">${fechaHora(c.fechaPago)}</td>
+      <td class="acc"><button class="btn ok peq" data-act="confirmarPago" data-path="${esc(d.ref.path)}">Confirmar</button><button class="btn mal peq" data-act="rechazarPago" data-path="${esc(d.ref.path)}">Rechazar</button></td></tr>`; }).join("")
+    : `<tr><td colspan="7" class="vacio">No hay pagos por verificar</td></tr>`;
+
+  pintarClientes();
+
+  // Grupos
+  const grupos = datos.grupos.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => (b.fechaCreacion?.seconds || 0) - (a.fechaCreacion?.seconds || 0));
+  $("#tGrupos").innerHTML = grupos.length ? grupos.map((g) => {
+    const det = g.detalle || {}; const miembros = g.miembros || [];
+    const total = miembros.reduce((s, m) => s + num(det[m]?.monto), 0);
+    return `<tr><td><b>${esc(g.nombre)}</b><div class="mini">Creado por ${esc(g.creadorNombre)}</div></td><td><code>${esc(g.id)}</code></td>
+      <td>${miembros.map((m) => `${esc(det[m]?.nombre || "—")} <span class="mini">(${soles(det[m]?.monto)})</span>`).join("<br>")}</td>
+      <td class="num">${soles(total)}</td><td class="num">${num(g.plazoMeses)} m</td><td>${chip(g.estado)}</td>
+      <td class="acc">${g.estado === "Enviado" ? `<button class="btn ok peq" data-act="aprobarGrupo" data-id="${g.id}">Aprobar</button><button class="btn mal peq" data-act="rechazarGrupo" data-id="${g.id}">Rechazar</button>` : ""}</td></tr>`;
+  }).join("") : `<tr><td colspan="7" class="vacio">Aún no hay grupos de banca comunal.</td></tr>`;
+}
+
+function pintarClientes() {
+  const f = $("#buscarCli").value.trim().toLowerCase();
+  const us = datos.usuarios.map((d) => ({ id: d.id, ...d.data() }))
+    .filter((u) => !f || [u.nombre, u.dni, u.email].some((x) => String(x || "").toLowerCase().includes(f)))
+    .sort((a, b) => (a.nombre || "").localeCompare(b.nombre || ""));
+  $("#tClientes").innerHTML = us.length ? us.map((u) => `<tr><td><b>${esc(u.nombre || "—")}</b></td><td>${esc(u.dni || "—")}</td><td>${esc(u.celular || "—")}</td><td>${esc(u.email)}</td>
+      <td>${chip(u.rol)}</td><td>${u.id === auth.currentUser?.uid ? "" : `<button class="btn sec peq" data-act="rol" data-id="${u.id}" data-rol="${u.rol === "admin" ? "cliente" : "admin"}">Hacer ${u.rol === "admin" ? "cliente" : "admin"}</button>`}</td></tr>`).join("")
+    : `<tr><td colspan="6" class="vacio">Sin resultados</td></tr>`;
+}
+$("#buscarCli").addEventListener("input", pintarClientes);
+
+// ---------------- acciones ----------------
+document.addEventListener("click", async (ev) => {
+  const b = ev.target.closest("[data-act]");
+  if (!b || b.type === "checkbox") return;
+  const { act, id, path } = b.dataset;
+  try {
+    if (act === "editProd") editarProducto(id);
+    else if (act === "delProd" && confirm("¿Eliminar este producto? Los clientes dejarán de verlo.")) { await deleteDoc(doc(db, "productosFinancieros", id)); toast("Producto eliminado"); }
+    else if (act === "editPromo") editarPromo(id);
+    else if (act === "delPromo" && confirm("¿Eliminar esta campaña?")) { await deleteDoc(doc(db, "promociones", id)); toast("Campaña eliminada"); }
+    else if (act === "aprobar") await aprobar(id);
+    else if (act === "rechazar") await rechazar(id);
+    else if (act === "confirmarPago") await confirmarPago(path);
+    else if (act === "rechazarPago") await rechazarPago(path);
+    else if (act === "rol" && confirm(`¿Cambiar el rol a "${b.dataset.rol}"?`)) { await updateDoc(doc(db, "usuarios", id), { rol: b.dataset.rol }); toast("Rol actualizado"); }
+    else if (act === "aprobarGrupo") { await updateDoc(doc(db, "gruposComunales", id), { estado: "Aprobado", fechaDecision: serverTimestamp(), decididoPor: auth.currentUser.uid }); toast("Grupo aprobado"); }
+    else if (act === "rechazarGrupo") { const m = prompt("Motivo del rechazo:"); if (m) { await updateDoc(doc(db, "gruposComunales", id), { estado: "Rechazado", motivo: m, fechaDecision: serverTimestamp(), decididoPor: auth.currentUser.uid }); toast("Grupo rechazado"); } }
+  } catch (e) { toast(errorMsg(e)); }
+});
+document.addEventListener("change", async (ev) => {
+  const c = ev.target.closest("input[type=checkbox][data-act]");
+  if (!c) return;
+  const col = c.dataset.act === "toggleProd" ? "productosFinancieros" : "promociones";
+  try { await updateDoc(doc(db, col, c.dataset.id), { activo: c.checked, fechaActualizacion: serverTimestamp() }); toast(c.checked ? "Visible en la app" : "Oculto en la app"); }
+  catch (e) { c.checked = !c.checked; toast(errorMsg(e)); }
+});
+
+// Aprobar: genera el cronograma igual que la app (solicitudes_screen.dart).
+async function aprobar(id) {
+  const ref = doc(db, "prestamos", id);
+  const p = datos.prestamos.find((d) => d.id === id)?.data();
+  if (!confirm(`¿Aprobar el préstamo de ${soles(p?.monto)} para ${p?.clienteNombre || "el cliente"}?`)) return;
+  await runTransaction(db, async (tx) => {
+    const s = await tx.get(ref); const d = s.data();
+    if (!d) throw new Error("La solicitud ya no existe.");
+    if (d.estado !== "Pendiente") throw new Error("Esta solicitud ya fue atendida.");
+    const monto = num(d.monto); const hoy = new Date(); const inicio = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+    const cuotas = generarCronograma(monto, num(d.tasa), d.tasaAnual === true, num(d.plazoMeses), inicio);
+    const total = r2(cuotas.reduce((s, c) => s + c.cuota, 0));
+    for (const c of cuotas) {
+      tx.set(doc(ref, "cuotas", String(c.numero).padStart(3, "0")), {
+        numero: c.numero, fecha: Timestamp.fromDate(c.fecha), cuota: c.cuota, interes: c.interes, amortizacion: c.amortizacion, saldo: c.saldo,
+        estado: "Pendiente", prestamoId: id, clienteId: d.clienteId, clienteNombre: d.clienteNombre || "",
+      });
+    }
+    tx.update(ref, {
+      estado: "Activo", fechaAprobacion: serverTimestamp(), fechaDesembolso: Timestamp.fromDate(inicio), aprobadoPor: auth.currentUser.uid,
+      cuotaMensual: cuotas[0].cuota, totalAPagar: total, totalIntereses: r2(cuotas.reduce((s, c) => s + c.interes, 0)),
+      saldoPendiente: total, cuotasPagadas: 0, tcea: Number(calcularTcea(monto, cuotas.map((c) => c.cuota)).toFixed(2)),
+    });
+  });
+  toast("Préstamo aprobado y cronograma generado");
+}
+async function rechazar(id) {
+  const motivo = prompt("Motivo del rechazo:"); if (!motivo) return;
+  const ref = doc(db, "prestamos", id);
+  await runTransaction(db, async (tx) => {
+    const s = await tx.get(ref);
+    if (s.data()?.estado !== "Pendiente") throw new Error("Esta solicitud ya fue atendida.");
+    tx.update(ref, { estado: "Rechazado", motivoRechazo: motivo, fechaRechazo: serverTimestamp(), rechazadoPor: auth.currentUser.uid });
+  });
+  toast("Solicitud rechazada");
+}
+// Confirmar pago: igual que cobranzas_screen.dart (actualiza cuota, saldo y cuotas pagadas).
+async function confirmarPago(path) {
+  if (!confirm("¿Confirmar que el pago llegó?")) return;
+  const cuotaRef = doc(db, path);
+  const prestamoRef = cuotaRef.parent.parent;
+  const refs = (await getDocs(collection(prestamoRef, "cuotas"))).docs.map((d) => d.ref);
+  const completo = await runTransaction(db, async (tx) => {
+    const snaps = [];
+    for (const r of refs) snaps.push(await tx.get(r));
+    const actual = snaps.find((s) => s.id === cuotaRef.id);
+    if (actual?.data()?.estado !== "Por verificar") throw new Error("Este pago ya fue atendido.");
+    let pagadas = 0, total = 0, saldo = 0;
+    for (const s of snaps) {
+      const d = s.data(); if (!d) continue; total++;
+      if (s.id === cuotaRef.id || d.estado === "Pagada") pagadas++; else saldo += num(d.cuota);
+    }
+    const completo = total > 0 && pagadas === total;
+    tx.update(cuotaRef, { estado: "Pagada", fechaConfirmacion: serverTimestamp(), confirmadoPor: auth.currentUser.uid });
+    tx.update(prestamoRef, { saldoPendiente: completo ? 0 : r2(saldo), cuotasPagadas: pagadas, ...(completo ? { estado: "Pagado", fechaPagado: serverTimestamp() } : {}) });
+    return completo;
+  });
+  toast(completo ? "Pago confirmado. ¡Préstamo cancelado!" : "Pago confirmado");
+}
+async function rechazarPago(path) {
+  const motivo = prompt("Motivo del rechazo del pago:"); if (!motivo) return;
+  const ref = doc(db, path);
+  await runTransaction(db, async (tx) => {
+    const s = await tx.get(ref); const c = s.data();
+    if (!c || c.estado !== "Por verificar") throw new Error("Este pago ya fue atendido.");
+    tx.update(ref, {
+      estado: "Pendiente", motivoRechazoPago: motivo, fechaRechazoPago: serverTimestamp(), rechazadoPor: auth.currentUser.uid,
+      historialRechazos: arrayUnion({ motivo, medioPago: c.medioPago ?? null, numeroOperacion: c.numeroOperacion ?? null, fecha: Timestamp.now() }),
+    });
+  });
+  toast("Pago rechazado: la cuota vuelve a Pendiente");
+}
+
+// ---------------- formularios ----------------
+function editarProducto(id) {
+  const f = $("#fProducto"); f.reset();
+  const p = id ? datos.productos.find((d) => d.id === id)?.data() || {} : { categoria: "Capital de trabajo", montoMin: 500, montoMax: 5000, plazoMin: 3, plazoMax: 12, activo: true, imagen: "assets/creditos/money_bag.png" };
+  $("#dlgProdTit").textContent = id ? "Editar producto" : "Nuevo producto";
+  for (const k of ["nombre", "categoria", "publico", "descripcion", "montoMin", "montoMax", "plazoMin", "plazoMax", "imagen"]) f.elements[k].value = p[k] ?? "";
+  f.elements.requisitos.value = (p.requisitos || []).join("\n");
+  f.elements.activo.checked = p.activo !== false;
+  const dlg = $("#dlgProducto");
+  dlg.onclose = async () => {
+    if (dlg.returnValue !== "ok") return;
+    const v = (k) => f.elements[k].value.trim();
+    const mn = Math.min(10000, Math.max(300, num(v("montoMin")))), mx = Math.min(10000, Math.max(mn, num(v("montoMax"))));
+    const pmn = Math.min(24, Math.max(1, Math.round(num(v("plazoMin"))))), pmx = Math.min(24, Math.max(pmn, Math.round(num(v("plazoMax")))));
+    const datosP = {
+      nombre: v("nombre"), categoria: v("categoria"), publico: v("publico"), descripcion: v("descripcion"), imagen: v("imagen"),
+      montoMin: mn, montoMax: mx, plazoMin: pmn, plazoMax: pmx,
+      requisitos: v("requisitos").split("\n").map((x) => x.trim()).filter(Boolean), activo: f.elements.activo.checked,
+      fechaActualizacion: serverTimestamp(),
+    };
+    try {
+      if (id) await updateDoc(doc(db, "productosFinancieros", id), datosP);
+      else await addDoc(collection(db, "productosFinancieros"), { ...datosP, fechaCreacion: serverTimestamp() });
+      toast("Guardado. Ya se ve en la app.");
+    } catch (e) { toast(errorMsg(e)); }
+  };
+  dlg.showModal();
+}
+
+function editarPromo(id) {
+  const f = $("#fPromo"); f.reset();
+  const p = id ? datos.promos.find((d) => d.id === id)?.data() || {} : { tipo: "porcentaje", valor: 10, montoMinimo: 0, para: "todos", activo: true, clientes: [] };
+  $("#dlgPromoTit").textContent = id ? "Editar campaña" : "Nueva campaña";
+  for (const k of ["titulo", "descripcion", "tipo", "valor", "montoMinimo", "imagen", "para"]) f.elements[k].value = p[k] ?? "";
+  const fin = p.fechaFin?.toDate?.();
+  f.elements.fechaFin.value = fin ? `${fin.getFullYear()}-${String(fin.getMonth() + 1).padStart(2, "0")}-${String(fin.getDate()).padStart(2, "0")}` : "";
+  f.elements.activo.checked = p.activo !== false;
+  const sel = new Set(p.clientes || []);
+  $("#chkClientes").innerHTML = datos.usuarios.filter((u) => u.data().rol === "cliente")
+    .map((u) => `<label><input type="checkbox" value="${u.id}" ${sel.has(u.id) ? "checked" : ""}>${esc(u.data().nombre || u.data().email)}</label>`).join("") || `<div class="mini">Sin clientes</div>`;
+  const mostrar = () => $("#cajaClientesPromo").classList.toggle("oculto", f.elements.para.value !== "seleccionados");
+  f.elements.para.onchange = mostrar; mostrar();
+  const dlg = $("#dlgPromo");
+  dlg.onclose = async () => {
+    if (dlg.returnValue !== "ok") return;
+    const v = (k) => f.elements[k].value.trim();
+    const para = v("para");
+    const clientes = para === "todos" ? [] : [...$("#chkClientes").querySelectorAll("input:checked")].map((x) => x.value);
+    const ff = v("fechaFin");
+    const datosP = {
+      titulo: v("titulo"), descripcion: v("descripcion"), imagen: v("imagen"), tipo: v("tipo") === "monto" ? "monto" : "porcentaje",
+      valor: num(v("valor")), montoMinimo: num(v("montoMinimo")), para, clientes, activo: f.elements.activo.checked,
+      fechaFin: ff ? Timestamp.fromDate(new Date(ff + "T23:59:00")) : null, fechaActualizacion: serverTimestamp(),
+    };
+    try {
+      if (id) await updateDoc(doc(db, "promociones", id), datosP);
+      else await addDoc(collection(db, "promociones"), { ...datosP, fechaCreacion: serverTimestamp() });
+      toast("Campaña guardada. Ya se ve en la app.");
+    } catch (e) { toast(errorMsg(e)); }
+  };
+  dlg.showModal();
+}
+</script>
+</body>
+</html>

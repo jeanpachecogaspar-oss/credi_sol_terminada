@@ -109,6 +109,24 @@ Se usan APIs **gratuitas y sin clave**: OpenStreetMap (mapa), Overpass (bancos, 
 Se eliminó `ubicacion_gate.dart` (bloqueo y rastreo) y el GPS obligatorio del registro. Las agencias se
 configuran en `config_pagos.dart` (`ConfigAgencias`).
 
+## 2f. Quinta revisión (evaluación del 25/11: web, cámara/galería/sensores e ideas disruptivas)
+
+| Criterio del profesor | Qué se hizo | Dónde |
+|---|---|---|
+| **Versión** | 1.0.0+1 → **1.2.0+3** | `pubspec.yaml` |
+| **Nombre de la app y del instalador** | La app se llama "CrediSol" (Android y web). `generar_apk.bat` compila y deja la APK como **CrediSol-v1.2.0.apk** | `web/index.html`, `web/manifest.json`, `generar_apk.bat` |
+| **Apartado web en tiempo real** | **Panel administrativo web** (HTML + JS + Firebase): resumen con indicadores y gráfico, productos (crear, editar, ocultar, eliminar), promociones, solicitudes (aprobar con cronograma / rechazar), cobranzas (confirmar / rechazar pagos), clientes (roles) y banca comunal. Todo usa `onSnapshot`: lo que se cambia en la web aparece al instante en la app y viceversa | `panel_web/` (abrir con `panel_web/abrir_panel_web.bat`) |
+| **Cámara** | Escanear DNI, selfie, DNI y recibo | `sensores_camara.dart`, `solicitud_screen.dart` |
+| **Galería** | "Escanear DNI" deja elegir **cámara o galería**; el **recibo de luz o agua** también se puede subir desde la galería | `cliente_inicio_screen.dart`, `sensores_camara.dart`, `solicitud_screen.dart` |
+| **Sensores (obtener valores)** | Pantalla **Sensores del celular**: acelerómetro, aceleración lineal, giroscopio y magnetómetro con X, Y, Z y magnitud en vivo, más posición del celular y brújula | `sensores_screen.dart` (Inicio › Sensores del celular) |
+| **Idea disruptiva 1** | **Planificador de inversión**: el emprendedor **arrastra** su mercadería o insumos (pollo, papa, arroz…) a una canasta y la app calcula al instante la inversión, el préstamo necesario, la cuota, la ganancia mensual y si le conviene | `planificador_inversion_screen.dart` |
+| **Idea disruptiva 2** | **Cuotas por temporada**: cronograma que cobra más en los meses de venta alta (Navidad, campaña escolar, cosecha) y menos en los bajos, con la misma tasa; se compara con la cuota fija y se pide al asesor por WhatsApp | `cuotas_temporada_screen.dart` |
+| **Idea disruptiva 3** | **Libreta de ventas**: registro diario de ventas y gastos (en el celular), gráfico de los últimos días, capacidad de pago (35 % de la ganancia) y **monto sugerido** del préstamo | `libreta_ventas_screen.dart` |
+| **Idea disruptiva 4** | **Banca comunal**: de 3 a 5 socios forman un grupo con un código, cada uno elige su monto y se respaldan entre sí; el creador lo envía y el asesor lo aprueba desde el panel web | `banca_comunal_screen.dart`, colección `gruposComunales`, `firestore.rules` |
+
+Los cálculos de las 4 ideas están en `ideas_calculos.dart` y tienen pruebas en `test/ideas_test.dart`.
+Se agregaron reglas para `gruposComunales` en `firestore.rules` (ya publicadas en el proyecto `credisol-app`).
+
 ## 3. Archivos (versión actual)
 
 Nuevos: `mapas.dart`, `cercanos_screen.dart`, `ubicar_negocio_screen.dart`, `mapa_visitas_screen.dart`,

@@ -9,13 +9,13 @@ import 'formato.dart';
 
 // =================== CÁMARA: leer el DNI ===================
 
-/// Toma una foto del DNI con la cámara y lee el número con Google ML Kit (OCR en el
-/// celular, sin internet). Devuelve los 8 dígitos o null.
-Future<String?> leerDniConCamara(BuildContext context) async {
+/// Toma una foto del DNI con la cámara (o la elige de la GALERÍA) y lee el número con
+/// Google ML Kit (OCR en el celular, sin internet). Devuelve los 8 dígitos o null.
+Future<String?> leerDniConCamara(BuildContext context, {ImageSource fuente = ImageSource.camera}) async {
   final messenger = ScaffoldMessenger.of(context);
   try {
     final foto = await ImagePicker().pickImage(
-      source: ImageSource.camera,
+      source: fuente,
       maxWidth: 1600,
       maxHeight: 1600,
       imageQuality: 85,
@@ -39,9 +39,9 @@ Future<String?> leerDniConCamara(BuildContext context) async {
     }
   } on PlatformException catch (e) {
     messenger.showSnackBar(SnackBar(
-      content: Text(e.code == 'camera_access_denied'
-          ? 'Permite el acceso a la cámara desde los ajustes del celular.'
-          : 'No se pudo abrir la cámara.'),
+      content: Text(e.code == 'camera_access_denied' || e.code == 'photo_access_denied'
+          ? 'Permite el acceso a la cámara y a las fotos desde los ajustes del celular.'
+          : 'No se pudo abrir la cámara o la galería.'),
     ));
     return null;
   }

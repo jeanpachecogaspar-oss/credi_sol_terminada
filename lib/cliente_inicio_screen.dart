@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
 import 'app_theme.dart';
 import 'errores.dart';
 import 'formato.dart';
+import 'herramientas_negocio.dart';
 import 'mis_prestamos_screen.dart';
 import 'navegacion_cliente.dart';
 import 'soporte.dart';
@@ -46,6 +48,7 @@ class ClienteInicioScreen extends StatelessWidget {
                   const _PromosInicio(),
                   const _AccionesRapidas(),
                   const _PagarCerca(),
+                  const HerramientasNegocio(),
                   const TarjetaScore(),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
@@ -400,7 +403,36 @@ class _AccionesRapidas extends StatelessWidget {
   const _AccionesRapidas();
 
   Future<void> _escanearDni(BuildContext context) async {
-    final dni = await leerDniConCamara(context);
+    // CÁMARA o GALERÍA: el cliente elige de dónde sale la foto del DNI.
+    final fuente = await showModalBottomSheet<ImageSource>(
+      context: context,
+      showDragHandle: true,
+      backgroundColor: Colors.white,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(20, 0, 20, 8),
+              child: Text('Escanear DNI', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_camera_rounded, color: AppColors.azul),
+              title: const Text('Tomar foto con la cámara'),
+              onTap: () => Navigator.pop(ctx, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_rounded, color: AppColors.azul),
+              title: const Text('Elegir de la galería'),
+              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+    if (fuente == null || !context.mounted) return;
+    final dni = await leerDniConCamara(context, fuente: fuente);
     if (dni == null || !context.mounted) return;
     final uid = FirebaseAuth.instance.currentUser?.uid;
     String? dniCuenta;
@@ -430,6 +462,7 @@ class _AccionesRapidas extends StatelessWidget {
               icono: Icons.document_scanner_rounded,
               etiqueta: 'CÁMARA',
               titulo: 'Escanear DNI',
+              pie: Text('Cámara o galería', style: TextStyle(fontSize: 10.5, color: Colors.grey.shade600)),
               color: AppColors.azul,
               onTap: () => _escanearDni(context),
             ),

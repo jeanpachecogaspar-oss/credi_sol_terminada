@@ -326,15 +326,16 @@ class _SolicitudScreenState extends State<SolicitudScreen> {
 
   // ---------------- Paso 2 ----------------
 
-  Future<void> _tomarFoto(TipoFoto tipo) async {
+  Future<void> _tomarFoto(TipoFoto tipo, {ImageSource fuente = ImageSource.camera}) async {
     final esRecibo = tipo.id == 'recibo_servicio';
     var reintentar = false;
     setState(() => _tomandoFoto = true);
     try {
-      // Solo cámara (nunca galería). image_picker comprime el JPEG en el celular.
-      // El recibo se toma con más resolución para poder leer su texto.
+      // Selfie y DNI: solo cámara. El recibo de luz o agua también se puede elegir de la
+      // GALERÍA (muchos llegan como foto o captura del recibo digital). image_picker comprime
+      // el JPEG en el celular y el recibo se pide con más resolución para leer su texto.
       final foto = await ImagePicker().pickImage(
-        source: ImageSource.camera,
+        source: fuente,
         preferredCameraDevice: tipo.frontal ? CameraDevice.front : CameraDevice.rear,
         maxWidth: esRecibo ? 1280 : 1024,
         maxHeight: esRecibo ? 1280 : 1024,
@@ -377,7 +378,7 @@ class _SolicitudScreenState extends State<SolicitudScreen> {
           _tomandoFoto = false;
           _analizando = null;
         });
-        if (reintentar) _tomarFoto(tipo);
+        if (reintentar) _tomarFoto(tipo, fuente: fuente);
       }
     }
   }
@@ -878,14 +879,30 @@ class _SolicitudScreenState extends State<SolicitudScreen> {
                     style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5),
                   ),
                 const SizedBox(height: 8),
-                SizedBox(
-                  height: 36,
-                  child: OutlinedButton.icon(
-                    onPressed: _tomandoFoto ? null : () => _tomarFoto(tipo),
-                    style: OutlinedButton.styleFrom(minimumSize: const Size(0, 36)),
-                    icon: const Icon(Icons.photo_camera_rounded, size: 18),
-                    label: Text(lista ? 'Tomar de nuevo' : 'Tomar foto'),
-                  ),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
+                  children: [
+                    SizedBox(
+                      height: 36,
+                      child: OutlinedButton.icon(
+                        onPressed: _tomandoFoto ? null : () => _tomarFoto(tipo),
+                        style: OutlinedButton.styleFrom(minimumSize: const Size(0, 36)),
+                        icon: const Icon(Icons.photo_camera_rounded, size: 18),
+                        label: Text(lista ? 'Tomar de nuevo' : 'Tomar foto'),
+                      ),
+                    ),
+                    if (tipo.id == 'recibo_servicio')
+                      SizedBox(
+                        height: 36,
+                        child: OutlinedButton.icon(
+                          onPressed: _tomandoFoto ? null : () => _tomarFoto(tipo, fuente: ImageSource.gallery),
+                          style: OutlinedButton.styleFrom(minimumSize: const Size(0, 36)),
+                          icon: const Icon(Icons.photo_library_rounded, size: 18),
+                          label: const Text('Galería'),
+                        ),
+                      ),
+                  ],
                 ),
               ],
             ),

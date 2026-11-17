@@ -3,7 +3,7 @@ description: "CrediSol: préstamos con simulador, solicitud en línea y pago de 
 publish_to: 'none'
 
 # versión visible (1.0.0) + número de compilación (1). Súbelo en cada publicación en Play Store.
-version: 1.0.0+1
+version: 1.2.0+3
 
 environment:
   sdk: '>=3.2.2 <4.0.0'

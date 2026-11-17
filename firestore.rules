@@ -228,6 +228,57 @@ service cloud.firestore {
       allow write: if esAdmin();
     }
 
+    // ---------------- Banca comunal (préstamo grupal) ----------------
+
+    // `gruposComunales/{codigo}`: de 3 a 5 integrantes; cada uno solo escribe su propia parte.
+    function parteValida(p) {
+      return p is map && p.keys().hasOnly(['nombre', 'monto'])
+        && p.nombre is string && p.nombre.size() <= 100
+        && p.monto is number && p.monto >= 300 && p.monto <= 3000;
+    }
+
+    match /gruposComunales/{codigo} {
+      // Para unirse se busca el grupo por su código (id del documento).
+      allow get: if autenticado();
+      allow list: if esAdmin() || (autenticado() && request.auth.uid in resource.data.miembros);
+
+      allow create: if esCliente()
+        && codigo.matches('^[A-Z0-9]{6}$')
+        && request.resource.data.keys().hasOnly(['nombre', 'codigo', 'creadorId', 'creadorNombre', 'plazoMeses',
+             'miembros', 'detalle', 'estado', 'fechaCreacion', 'fechaActualizacion'])
+        && request.resource.data.codigo == codigo
+        && request.resource.data.creadorId == request.auth.uid
+        && request.resource.data.miembros == [request.auth.uid]
+        && request.resource.data.detalle.keys().hasOnly([request.auth.uid])
+        && parteValida(request.resource.data.detalle[request.auth.uid])
+        && request.resource.data.estado == 'Formando'
+        && request.resource.data.nombre is string && request.resource.data.nombre.size() >= 3
+        && request.resource.data.nombre.size() <= 40
+        && request.resource.data.plazoMeses is int
+        && request.resource.data.plazoMeses >= 3 && request.resource.data.plazoMeses <= 12;
+
+      allow update: if esAdmin()
+        // Unirse o cambiar su propio monto mientras el grupo se está formando.
+        || (esCliente()
+            && resource.data.estado == 'Formando'
+            && cambia().hasOnly(['miembros', 'detalle', 'fechaActualizacion'])
+            && request.auth.uid in request.resource.data.miembros
+            && request.resource.data.miembros.size() <= 5
+            && request.resource.data.miembros.toSet().difference(resource.data.miembros.toSet()).hasOnly([request.auth.uid])
+            && resource.data.miembros.toSet().difference(request.resource.data.miembros.toSet()).size() == 0
+            && request.resource.data.detalle.diff(resource.data.detalle).affectedKeys().hasOnly([request.auth.uid])
+            && parteValida(request.resource.data.detalle[request.auth.uid]))
+        // El creador lo envía al asesor cuando tiene al menos 3 integrantes.
+        || (autenticado()
+            && resource.data.creadorId == request.auth.uid
+            && resource.data.estado == 'Formando'
+            && request.resource.data.estado == 'Enviado'
+            && cambia().hasOnly(['estado', 'fechaEnvio'])
+            && resource.data.miembros.size() >= 3);
+
+      allow delete: if esAdmin();
+    }
+
     // Todo lo demás (incluidas las colecciones antiguas `clientes` y `pagos`) queda bloqueado.
   }
 }
