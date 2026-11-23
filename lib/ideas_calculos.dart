@@ -2,7 +2,7 @@ import 'dart:math' as math;
 import 'config_prestamos.dart';
 import 'cronograma.dart';
 
-/// Cálculos de las 4 ideas disruptivas (sin Flutter, para poder probarlos con `flutter test`).
+/// Cálculos de las 5 ideas disruptivas (sin Flutter, para poder probarlos con `flutter test`).
 
 double _r(double v) => (v * 100).roundToDouble() / 100;
 
@@ -286,4 +286,148 @@ String generarCodigoGrupo([math.Random? azar]) {
   const letras = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   final r = azar ?? math.Random.secure();
   return List.generate(6, (_) => letras[r.nextInt(letras.length)]).join();
+}
+
+// ======================= 5. INVENTARIO CON CÁMARA =======================
+
+/// Precio referencial de una mercadería que la IA del celular puede reconocer en una foto.
+class ReferenciaInventario {
+  final String nombre;
+  final String emoji;
+  final double precio; // valor de costo por unidad (referencial, Huancayo)
+  const ReferenciaInventario(this.nombre, this.emoji, this.precio);
+}
+
+/// Etiquetas del modelo base de Google ML Kit (en inglés) → mercadería con precio referencial.
+/// Se busca por palabra clave, así "Sneakers" o "Running shoe" caen en "Calzado".
+const Map<String, ReferenciaInventario> referenciasInventario = {
+  'shoe': ReferenciaInventario('Calzado (par)', '👟', 45),
+  'sneaker': ReferenciaInventario('Calzado (par)', '👟', 45),
+  'boot': ReferenciaInventario('Calzado (par)', '👟', 45),
+  'jacket': ReferenciaInventario('Casaca', '🧥', 60),
+  'jeans': ReferenciaInventario('Pantalón', '👖', 35),
+  'denim': ReferenciaInventario('Pantalón', '👖', 35),
+  'shirt': ReferenciaInventario('Polo o camisa', '👕', 18),
+  'jersey': ReferenciaInventario('Polo o camisa', '👕', 18),
+  'clothing': ReferenciaInventario('Prenda de vestir', '👕', 25),
+  'dress': ReferenciaInventario('Vestido', '👗', 40),
+  'hat': ReferenciaInventario('Gorro o sombrero', '🧢', 15),
+  'cap': ReferenciaInventario('Gorro o sombrero', '🧢', 15),
+  'bag': ReferenciaInventario('Bolso o mochila', '👜', 35),
+  'glasses': ReferenciaInventario('Lentes', '🕶️', 20),
+  'bread': ReferenciaInventario('Pan y panificados', '🍞', 0.4),
+  'cake': ReferenciaInventario('Torta o queque', '🎂', 35),
+  'cookie': ReferenciaInventario('Galletas (paquete)', '🍪', 1.5),
+  'candy': ReferenciaInventario('Golosinas (paquete)', '🍬', 4),
+  'fruit': ReferenciaInventario('Fruta (kg)', '🍎', 4),
+  'vegetable': ReferenciaInventario('Verduras (kg)', '🥕', 3),
+  'egg': ReferenciaInventario('Huevos (jaba)', '🥚', 14),
+  'bottle': ReferenciaInventario('Bebida embotellada', '🥤', 2.5),
+  'drink': ReferenciaInventario('Bebida embotellada', '🥤', 2.5),
+  'juice': ReferenciaInventario('Jugo o néctar', '🧃', 3),
+  'food': ReferenciaInventario('Abarrotes', '🛒', 5),
+  'toy': ReferenciaInventario('Juguete', '🧸', 20),
+  'flower': ReferenciaInventario('Flores y plantas', '💐', 8),
+  'plant': ReferenciaInventario('Flores y plantas', '💐', 8),
+  'mobile phone': ReferenciaInventario('Celular', '📱', 450),
+  'computer': ReferenciaInventario('Computadora', '💻', 1500),
+  'television': ReferenciaInventario('Televisor', '📺', 900),
+  'tool': ReferenciaInventario('Herramienta', '🛠️', 30),
+  'chair': ReferenciaInventario('Silla', '🪑', 60),
+  'furniture': ReferenciaInventario('Mueble', '🛋️', 250),
+  'musical instrument': ReferenciaInventario('Instrumento musical', '🎸', 300),
+  'guitar': ReferenciaInventario('Instrumento musical', '🎸', 300),
+  'jewelry': ReferenciaInventario('Joyas y bisutería', '💍', 30),
+  'paper': ReferenciaInventario('Útiles de escritorio', '📒', 3),
+  'cosmetics': ReferenciaInventario('Cosméticos', '💄', 15),
+};
+
+/// Busca la mercadería que corresponde a una etiqueta de ML Kit; null si no es mercadería.
+ReferenciaInventario? referenciaPara(String etiqueta) {
+  final e = etiqueta.toLowerCase();
+  for (final k in referenciasInventario.entries) {
+    if (e.contains(k.key)) return k.value;
+  }
+  return null;
+}
+
+/// Mercadería contada en el inventario (detectada por la cámara o agregada a mano).
+class ArticuloInventario {
+  final String nombre;
+  final String emoji;
+  double precio;
+  int cantidad;
+  final bool detectado; // true si lo reconoció la IA
+  ArticuloInventario({
+    required this.nombre,
+    required this.emoji,
+    required this.precio,
+    this.cantidad = 1,
+    this.detectado = true,
+  });
+  double get subtotal => precio * cantidad;
+}
+
+/// Une las etiquetas de una foto con el inventario: si la mercadería ya estaba no la repite.
+/// Devuelve cuántas mercaderías nuevas agregó.
+int agregarEtiquetas(List<ArticuloInventario> inventario, Iterable<String> etiquetas) {
+  var nuevas = 0;
+  for (final et in etiquetas) {
+    final ref = referenciaPara(et);
+    if (ref == null || inventario.any((a) => a.nombre == ref.nombre)) continue;
+    inventario.add(ArticuloInventario(nombre: ref.nombre, emoji: ref.emoji, precio: ref.precio));
+    nuevas++;
+  }
+  return nuevas;
+}
+
+class ResultadoInventario {
+  final double valor; // valor de costo de toda la mercadería
+  final double valorRespaldo; // lo que valdría si hubiera que rematarla (60 %)
+  final double montoSugerido; // préstamo que el inventario respalda
+  final double cuota;
+  final int variedad; // mercaderías distintas
+  const ResultadoInventario({
+    required this.valor,
+    required this.valorRespaldo,
+    required this.montoSugerido,
+    required this.cuota,
+    required this.variedad,
+  });
+
+  /// Más variedad = menos riesgo (si una mercadería no se vende, las otras sí).
+  String get nivel => montoSugerido == 0
+      ? 'Sin respaldo suficiente'
+      : variedad >= 4
+          ? 'Respaldo fuerte'
+          : variedad >= 2
+              ? 'Respaldo medio'
+              : 'Respaldo básico';
+}
+
+/// El inventario funciona como garantía: se valora al 60 % (precio de remate) y se presta
+/// hasta el 80 % de ese valor, dentro de los límites de CrediSol.
+ResultadoInventario evaluarInventario(List<ArticuloInventario> inventario, {int plazo = 6}) {
+  final valor = inventario.fold(0.0, (s, a) => s + a.subtotal);
+  final respaldo = valor * 0.6;
+  var monto = (respaldo * 0.8 / 50).floorToDouble() * 50; // múltiplos de S/ 50
+  if (monto < ConfigPrestamos.montoMinimo) monto = 0;
+  monto = math.min(monto, ConfigPrestamos.montoMaximo);
+  var cuota = 0.0;
+  if (monto > 0) {
+    cuota = generarCronograma(
+      monto: monto,
+      tasa: ConfigPrestamos.tasa,
+      tasaAnual: ConfigPrestamos.tasaAnual,
+      plazo: plazo,
+      fechaInicio: DateTime(2026, 1, 1),
+    ).first.cuota;
+  }
+  return ResultadoInventario(
+    valor: _r(valor),
+    valorRespaldo: _r(respaldo),
+    montoSugerido: monto,
+    cuota: _r(cuota),
+    variedad: inventario.where((a) => a.cantidad > 0).length,
+  );
 }

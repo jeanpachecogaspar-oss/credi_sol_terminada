@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_application_1/cronograma.dart';
-import 'package:flutter_application_1/ideas_calculos.dart';
+import 'package:credisol/cronograma.dart';
+import 'package:credisol/ideas_calculos.dart';
 
 void main() {
   group('Cuotas por temporada', () {
@@ -76,6 +76,33 @@ void main() {
 
     test('la cuota de un integrante es positiva', () {
       expect(cuotaIntegrante(1000, 6), greaterThan(1000 / 6));
+    });
+  });
+
+  group('Inventario con cámara', () {
+    test('reconoce etiquetas de ML Kit y no repite mercadería', () {
+      final inv = <ArticuloInventario>[];
+      final n = agregarEtiquetas(inv, ['Sneakers', 'Shoe', 'Room', 'Fruit']);
+      expect(n, 2); // calzado una sola vez; "Room" no es mercadería
+      expect(inv.map((a) => a.nombre), containsAll(['Calzado (par)', 'Fruta (kg)']));
+      expect(referenciaPara('Shelf'), isNull);
+    });
+
+    test('presta hasta el 80 % del valor de remate (60 %) en múltiplos de 50', () {
+      final inv = [ArticuloInventario(nombre: 'Calzado', emoji: '👟', precio: 45, cantidad: 100)];
+      final r = evaluarInventario(inv, plazo: 6);
+      expect(r.valor, 4500);
+      expect(r.valorRespaldo, 2700);
+      expect(r.montoSugerido, 2150); // 2700 × 0,8 = 2160 → 2150
+      expect(r.cuota, greaterThan(0));
+      expect(r.nivel, 'Respaldo básico');
+    });
+
+    test('un inventario chico no respalda préstamo', () {
+      final r = evaluarInventario([ArticuloInventario(nombre: 'Pan', emoji: '🍞', precio: 0.4, cantidad: 50)]);
+      expect(r.montoSugerido, 0);
+      expect(r.cuota, 0);
+      expect(r.nivel, 'Sin respaldo suficiente');
     });
   });
 }

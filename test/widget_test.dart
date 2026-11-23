@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:flutter_application_1/cronograma.dart';
-import 'package:flutter_application_1/datos_personales.dart';
+import 'package:credisol/cronograma.dart';
+import 'package:credisol/datos_personales.dart';
 
 void main() {
   group('validaciones de datos personales', () {

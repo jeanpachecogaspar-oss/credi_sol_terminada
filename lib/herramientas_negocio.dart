@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'app_theme.dart';
 import 'banca_comunal_screen.dart';
 import 'cuotas_temporada_screen.dart';
+import 'inventario_camara_screen.dart';
 import 'libreta_ventas_screen.dart';
 import 'planificador_inversion_screen.dart';
 import 'sensores_screen.dart';
 
-/// Sección del Inicio con las 4 ideas disruptivas y el acceso a los sensores.
+/// Sección del Inicio con las 5 ideas disruptivas y el acceso a los sensores.
 class HerramientasNegocio extends StatelessWidget {
   const HerramientasNegocio({super.key});
 
@@ -20,6 +21,44 @@ class HerramientasNegocio extends StatelessWidget {
         children: [
           const Text('Herramientas para tu negocio', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
           const SizedBox(height: 10),
+          Material(
+            color: AppColors.azul,
+            borderRadius: BorderRadius.circular(20),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: () => ir(const InventarioCamaraScreen()),
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.18),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: const Icon(Icons.document_scanner_rounded, color: Colors.white),
+                    ),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Inventario con cámara · NUEVO',
+                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 14)),
+                          SizedBox(height: 2),
+                          Text('Fotografía tu mercadería: la IA calcula el préstamo que respalda',
+                              style: TextStyle(color: Colors.white70, fontSize: 12)),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right_rounded, color: Colors.white),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
           GridView.count(
             crossAxisCount: 2,
             shrinkWrap: true,

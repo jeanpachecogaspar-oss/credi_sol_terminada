@@ -124,7 +124,7 @@ configuran en `config_pagos.dart` (`ConfigAgencias`).
 | **Idea disruptiva 3** | **Libreta de ventas**: registro diario de ventas y gastos (en el celular), gráfico de los últimos días, capacidad de pago (35 % de la ganancia) y **monto sugerido** del préstamo | `libreta_ventas_screen.dart` |
 | **Idea disruptiva 4** | **Banca comunal**: de 3 a 5 socios forman un grupo con un código, cada uno elige su monto y se respaldan entre sí; el creador lo envía y el asesor lo aprueba desde el panel web | `banca_comunal_screen.dart`, colección `gruposComunales`, `firestore.rules` |
 
-Los cálculos de las 4 ideas están en `ideas_calculos.dart` y tienen pruebas en `test/ideas_test.dart`.
+Los cálculos de las ideas están en `ideas_calculos.dart` y tienen pruebas en `test/ideas_test.dart`.
 Se agregaron reglas para `gruposComunales` en `firestore.rules` (ya publicadas en el proyecto `credisol-app`).
 
 ## 2g. Sexta revisión (feedback del 18/11: acceso, diseño, productos, notificaciones)
@@ -141,7 +141,16 @@ Se agregaron reglas para `gruposComunales` en `firestore.rules` (ya publicadas e
 Se eliminaron los archivos obsoletos de la tienda, el splash y el rastreo GPS.
 
 **Pendiente en Firebase (proyecto `credisol-app`):** la cuenta admin debe tener `rol: "admin"` en `usuarios`, y
-desde ella cargar el catálogo (Créditos › Cargar 40 productos de ejemplo).
+desde ella cargar el catálogo (Créditos › Cargar los 50 productos).
+
+## 2h. Entrega del APK v1.0.0 (25/11)
+
+| Punto | Qué se hizo | Dónde |
+|---|---|---|
+| **Control de versiones v1.0.0** | Versión de la app `1.0.0+1` | `pubspec.yaml` |
+| **Nombre del APK y de la app** | Paquete Dart `credisol` (antes `flutter_application_1`) y namespace Android `pe.credisol.app`, igual al `applicationId`. La app se llama **CrediSol** | `pubspec.yaml`, `android/app/build.gradle.kts`, `MainActivity.kt` |
+| **50 productos (unidad 3)** | 10 créditos nuevos: Farmacia y Botica, Artesanía, Joyería y Bisutería, Turismo y Hospedaje, Foto y Eventos, Movilidad Eléctrica, Cuyes y Animales Menores, Apícola, Frutales y Palta, Microcrédito Express; cada uno con imagen 3D | `productos_financieros.dart`, `assets/creditos/` |
+| **Idea disruptiva 5: Inventario con cámara** | El cliente fotografía su mercadería (cámara o galería). La IA del celular (Google ML Kit, sin internet; las fotos no salen del equipo) reconoce los productos; el cliente ajusta cantidades y precios. El inventario se valora al 60 % (precio de remate) y respalda un préstamo de hasta el 80 % de ese valor: **una garantía sin papeles** para quien no tiene casa propia. Mientras más variada la mercadería, mejor el respaldo | `inventario_camara_screen.dart`, `ideas_calculos.dart`, `test/ideas_test.dart` |
 
 ## 3. Archivos (versión actual)
 

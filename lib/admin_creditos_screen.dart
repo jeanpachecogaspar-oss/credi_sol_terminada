@@ -30,7 +30,7 @@ class AdminCreditosScreen extends StatelessWidget {
   }
 }
 
-/// Carga o actualiza los 40 productos iniciales (no los duplica).
+/// Carga o actualiza los 50 productos iniciales (no los duplica).
 Future<void> cargarProductosIniciales(BuildContext context) async {
   final ok = await confirmar(
     context,
@@ -109,13 +109,13 @@ class _ProductosAdminState extends State<_ProductosAdmin> with AutomaticKeepAliv
                     const Text('Aún no hay productos financieros',
                         style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 6),
-                    Text('Carga el catálogo inicial de 40 créditos con imagen o crea los tuyos.',
+                    Text('Carga el catálogo inicial de 50 créditos con imagen o crea los tuyos.',
                         textAlign: TextAlign.center, style: TextStyle(color: Paleta.gris600)),
                     const SizedBox(height: 16),
                     ElevatedButton.icon(
                       onPressed: () => cargarProductosIniciales(context),
                       icon: const Icon(Icons.auto_awesome_rounded),
-                      label: const Text('Cargar los 40 productos'),
+                      label: const Text('Cargar los 50 productos'),
                     ),
                   ],
                 ),
@@ -137,7 +137,7 @@ class _ProductosAdminState extends State<_ProductosAdmin> with AutomaticKeepAliv
                     TextButton.icon(
                       onPressed: () => cargarProductosIniciales(context),
                       icon: const Icon(Icons.refresh_rounded, size: 18),
-                      label: const Text('Recargar los 40'),
+                      label: const Text('Recargar los 50'),
                     ),
                   ],
                 );

@@ -17,7 +17,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.flutter_application_1"
+    namespace = "pe.credisol.app"
     compileSdk = 36
     ndkVersion = flutter.ndkVersion
 

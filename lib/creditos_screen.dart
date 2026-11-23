@@ -60,7 +60,7 @@ class _CreditosScreenState extends State<CreditosScreen> {
             return errorConsulta(context, 'No se pudo cargar el catálogo', snap.error!, () => setState(_crear));
           }
           final docs = snap.data?.docs ?? [];
-          // Si el catálogo aún no se cargó en Firebase, se muestran los 40 productos
+          // Si el catálogo aún no se cargó en Firebase, se muestran los 50 productos
           // incluidos en la app (con sus imágenes), para que el cliente nunca vea la lista vacía.
           final todos = (snap.hasData && docs.isEmpty
               ? productosIniciales.toList()

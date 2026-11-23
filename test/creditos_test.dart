@@ -1,16 +1,16 @@
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:flutter_application_1/config_prestamos.dart';
-import 'package:flutter_application_1/productos_financieros.dart';
-import 'package:flutter_application_1/score_screen.dart';
-import 'package:flutter_application_1/sensores_camara.dart';
+import 'package:credisol/config_prestamos.dart';
+import 'package:credisol/productos_financieros.dart';
+import 'package:credisol/score_screen.dart';
+import 'package:credisol/sensores_camara.dart';
 
 void main() {
   group('productos financieros', () {
-    test('son 40, con id único y dentro de los límites de las reglas', () {
-      expect(productosIniciales.length, 40);
-      expect(productosIniciales.map((p) => p.id).toSet().length, 40);
+    test('son 50, con id único y dentro de los límites de las reglas', () {
+      expect(productosIniciales.length, 50);
+      expect(productosIniciales.map((p) => p.id).toSet().length, 50);
       for (final p in productosIniciales) {
         expect(p.montoMin, greaterThanOrEqualTo(ConfigPrestamos.montoMinimo), reason: p.nombre);
         expect(p.montoMax, lessThanOrEqualTo(ConfigPrestamos.montoMaximo), reason: p.nombre);

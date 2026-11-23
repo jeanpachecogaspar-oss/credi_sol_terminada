@@ -1,9 +1,9 @@
-name: flutter_application_1
+name: credisol
 description: "CrediSol: préstamos con simulador, solicitud en línea y pago de cuotas por Yape, Plin o transferencia."
 publish_to: 'none'
 
 # versión visible (1.0.0) + número de compilación (1). Súbelo en cada publicación en Play Store.
-version: 1.2.0+3
+version: 1.0.0+1
 
 environment:
   sdk: '>=3.2.2 <4.0.0'
@@ -32,6 +32,8 @@ dependencies:
   # rostro en la selfie y lectura de texto del DNI y del recibo de luz o agua.
   google_mlkit_face_detection: ^0.15.0
   google_mlkit_text_recognition: ^0.17.0
+  # Inventario con cámara: reconoce la mercadería en la foto (en el celular, sin internet).
+  google_mlkit_image_labeling: ^0.16.1
   # Sensores (acelerómetro/giroscopio): login 3D y "Modo privado"
   sensors_plus: ^7.1.1
   # Guardar en el celular: "Mi selección" de créditos y el rol (entrada rápida)

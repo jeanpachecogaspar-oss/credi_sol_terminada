@@ -379,7 +379,7 @@ function pintar() {
       <td class="num">${num(p.plazoMin)}–${num(p.plazoMax)} m</td>
       <td><label class="switch"><input type="checkbox" data-act="toggleProd" data-id="${p.id}" ${p.activo !== false ? "checked" : ""}><span></span></label></td>
       <td class="acc"><button class="btn sec peq" data-act="editProd" data-id="${p.id}">Editar</button><button class="btn mal peq" data-act="delProd" data-id="${p.id}">Eliminar</button></td></tr>`).join("")
-    : `<tr><td colspan="7" class="vacio">No hay productos. Crea uno o usa "Cargar 40 productos de ejemplo" en la app (Admin › Créditos).</td></tr>`;
+    : `<tr><td colspan="7" class="vacio">No hay productos. Crea uno o usa "Cargar los 50 productos" en la app (Admin › Créditos).</td></tr>`;
 
   // Promociones
   const promos = datos.promos.map((d) => ({ id: d.id, ...d.data() }));

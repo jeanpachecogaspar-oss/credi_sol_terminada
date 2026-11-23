@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:flutter_application_1/apis_peru.dart';
-import 'package:flutter_application_1/validacion_identidad.dart';
+import 'package:credisol/apis_peru.dart';
+import 'package:credisol/validacion_identidad.dart';
 
 void main() {
   test('normaliza texto leído por OCR', () {
