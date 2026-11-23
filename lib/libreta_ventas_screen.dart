@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'avisos.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -74,7 +75,7 @@ class _LibretaVentasScreenState extends State<LibretaVentasScreen> {
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      backgroundColor: Colors.white,
+      backgroundColor: Paleta.superficie,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setLocal) => Padding(
           padding: EdgeInsets.fromLTRB(20, 0, 20, MediaQuery.of(ctx).viewInsets.bottom + 20),
@@ -147,7 +148,7 @@ class _LibretaVentasScreenState extends State<LibretaVentasScreen> {
     setState(() => _registros.remove(r));
     await _guardar();
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    ScaffoldMessenger.of(context).mostrarAviso(SnackBar(
       content: Text('Se borró el ${fmtFecha(r.fecha)}'),
       action: SnackBarAction(
         label: 'Deshacer',
@@ -181,7 +182,7 @@ class _LibretaVentasScreenState extends State<LibretaVentasScreen> {
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
               children: [
                 Text('Anota cada día lo que vendes y gastas. Con 7 días o más, CrediSol te dice cuánto '
-                    'puedes pedir sin riesgo.', style: TextStyle(color: Colors.grey.shade700)),
+                    'puedes pedir sin riesgo.', style: TextStyle(color: Paleta.gris700)),
                 const SizedBox(height: 14),
                 tarjetaBlanca(
                   child: Column(
@@ -244,7 +245,7 @@ class _LibretaVentasScreenState extends State<LibretaVentasScreen> {
                             Clipboard.setData(ClipboardData(text: a.montoSugerido.toStringAsFixed(0)));
                             tabCliente.value = tabSimular;
                             Navigator.popUntil(context, (route) => route.isFirst);
-                            messenger.showSnackBar(SnackBar(
+                            messenger.mostrarAviso(SnackBar(
                                 content: Text('Simula ${fmtMoney(a.montoSugerido)} a $_plazo meses (monto copiado).')));
                           },
                           icon: const Icon(Icons.calculate_rounded),
@@ -292,7 +293,7 @@ class _LibretaVentasScreenState extends State<LibretaVentasScreen> {
                         ),
                         const SizedBox(height: 6),
                         Text('Altura = ventas. Rojo = ese día gastaste más de lo que vendiste.',
-                            style: TextStyle(fontSize: 11.5, color: Colors.grey.shade600)),
+                            style: TextStyle(fontSize: 11.5, color: Paleta.gris600)),
                       ],
                     ),
                   ),
@@ -301,7 +302,7 @@ class _LibretaVentasScreenState extends State<LibretaVentasScreen> {
                 for (final r in _registros)
                   Card(
                     elevation: 0,
-                    color: Colors.white,
+                    color: Paleta.superficie,
                     margin: const EdgeInsets.only(bottom: 8),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     child: ListTile(

@@ -144,7 +144,7 @@ class _MapaVisitasScreenState extends State<MapaVisitasScreen> {
                 Container(
                   margin: const EdgeInsets.fromLTRB(12, 10, 12, 0),
                   padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)),
+                  decoration: BoxDecoration(color: Paleta.superficie, borderRadius: BorderRadius.circular(18)),
                   child: Row(
                     children: [
                       Expanded(
@@ -154,10 +154,10 @@ class _MapaVisitasScreenState extends State<MapaVisitasScreen> {
                             Text(_elegida!.cliente, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                             Text(
                               '${_elegida!.producto.isEmpty ? 'Préstamo' : _elegida!.producto} · ${fmtMoney(_elegida!.monto)}',
-                              style: TextStyle(color: Colors.grey.shade700, fontSize: 12.5),
+                              style: TextStyle(color: Paleta.gris700, fontSize: 12.5),
                             ),
                             if (_elegida!.direccion.isNotEmpty)
-                              Text(_elegida!.direccion, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                              Text(_elegida!.direccion, style: TextStyle(color: Paleta.gris600, fontSize: 12)),
                             if (_ruta != null)
                               Text('${textoDistancia(_ruta!.metros)} por calles · ${(_ruta!.segundos / 60).ceil()} min en auto',
                                   style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5)),

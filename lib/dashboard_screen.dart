@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'huella.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'app_theme.dart';
@@ -43,6 +44,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
       appBar: AppBar(
         title: const Text('Panel'),
         actions: [
+          IconButton(
+            tooltip: 'Ajustes',
+            icon: const Icon(Icons.tune_rounded),
+            onPressed: () => showModalBottomSheet(
+              context: context,
+              showDragHandle: true,
+              backgroundColor: Paleta.superficie,
+              builder: (_) => const SafeArea(
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: 12),
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [InterruptorHuella(), SelectorTema()]),
+                ),
+              ),
+            ),
+          ),
           IconButton(
             tooltip: 'Cerrar sesión',
             onPressed: () => FirebaseAuth.instance.signOut(),
@@ -216,7 +232,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: Icon(icono, color: color, size: 20),
                 ),
                 const Spacer(),
-                if (onTap != null) Icon(Icons.chevron_right_rounded, color: Colors.grey.shade400),
+                if (onTap != null) Icon(Icons.chevron_right_rounded, color: Paleta.gris400),
               ],
             ),
             Column(
@@ -239,7 +255,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ],
                   ],
                 ),
-                Text(titulo, style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5)),
+                Text(titulo, style: TextStyle(color: Paleta.gris600, fontSize: 12.5)),
               ],
             ),
           ],
@@ -289,7 +305,7 @@ class _CuotasVencidasScreen extends StatelessWidget {
                             ),
                             Text(
                               'Venció ${fmtFecha(fecha)} · hace $dias ${dias == 1 ? 'día' : 'días'}',
-                              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                              style: TextStyle(color: Paleta.gris600, fontSize: 13),
                             ),
                           ],
                         ),

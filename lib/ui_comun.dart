@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'avisos.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'errores.dart';
@@ -58,7 +59,7 @@ Widget tarjetaBlanca({required Widget child, EdgeInsets padding = const EdgeInse
     width: double.infinity,
     padding: padding,
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: Paleta.superficie,
       borderRadius: BorderRadius.circular(20),
       boxShadow: [
         BoxShadow(color: AppColors.azul.withValues(alpha: 0.06), blurRadius: 16, offset: const Offset(0, 6)),
@@ -74,7 +75,7 @@ Widget filaDato(String titulo, String valor, {bool destacado = false}) {
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(width: 130, child: Text(titulo, style: TextStyle(color: Colors.grey.shade600, fontSize: 13.5))),
+        SizedBox(width: 130, child: Text(titulo, style: TextStyle(color: Paleta.gris600, fontSize: 13.5))),
         Expanded(
           child: Text(
             valor,
@@ -97,11 +98,11 @@ Widget mensajeVacio(IconData icono, String titulo, String texto) {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icono, size: 60, color: Colors.grey.shade400),
+          Icon(icono, size: 60, color: Paleta.gris400),
           const SizedBox(height: 14),
           Text(titulo, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
           const SizedBox(height: 6),
-          Text(texto, textAlign: TextAlign.center, style: TextStyle(color: Colors.grey.shade600)),
+          Text(texto, textAlign: TextAlign.center, style: TextStyle(color: Paleta.gris600)),
         ],
       ),
     ),
@@ -119,11 +120,11 @@ Widget errorConsulta(BuildContext context, String titulo, Object error, VoidCall
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.error_outline_rounded, size: 60, color: Colors.grey.shade400),
+          Icon(Icons.error_outline_rounded, size: 60, color: Paleta.gris400),
           const SizedBox(height: 14),
           Text(titulo, textAlign: TextAlign.center, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
           const SizedBox(height: 6),
-          Text(mensajeError(error), textAlign: TextAlign.center, style: TextStyle(color: Colors.grey.shade600)),
+          Text(mensajeError(error), textAlign: TextAlign.center, style: TextStyle(color: Paleta.gris600)),
           const SizedBox(height: 20),
           if (enlace != null) ...[
             SizedBox(
@@ -141,7 +142,7 @@ Widget errorConsulta(BuildContext context, String titulo, Object error, VoidCall
                 onPressed: () async {
                   final messenger = ScaffoldMessenger.of(context);
                   await Clipboard.setData(ClipboardData(text: enlace));
-                  messenger.showSnackBar(const SnackBar(content: Text('Enlace copiado')));
+                  messenger.mostrarAviso(const SnackBar(content: Text('Enlace copiado')));
                 },
                 icon: const Icon(Icons.copy_rounded, size: 18),
                 label: const Text('Copiar enlace'),
@@ -188,9 +189,9 @@ Future<void> abrirUrl(BuildContext context, String url) async {
   final messenger = ScaffoldMessenger.of(context);
   try {
     final ok = await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-    if (!ok) messenger.showSnackBar(const SnackBar(content: Text('No se pudo abrir el enlace')));
+    if (!ok) messenger.mostrarAviso(const SnackBar(content: Text('No se pudo abrir el enlace')));
   } catch (_) {
-    messenger.showSnackBar(const SnackBar(content: Text('No se pudo abrir el enlace')));
+    messenger.mostrarAviso(const SnackBar(content: Text('No se pudo abrir el enlace')));
   }
 }
 

@@ -222,7 +222,7 @@ class _CercanosScreenState extends State<CercanosScreen> {
       margin: const EdgeInsets.fromLTRB(12, 10, 12, 0),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Paleta.superficie,
         borderRadius: BorderRadius.circular(18),
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 12)],
       ),
@@ -243,7 +243,7 @@ class _CercanosScreenState extends State<CercanosScreen> {
                           : yo != null
                               ? 'A ${textoDistancia(distanciaMetros(yo, p.posicion))} en línea recta'
                               : '',
-                  style: TextStyle(color: Colors.grey.shade700, fontSize: 12.5),
+                  style: TextStyle(color: Paleta.gris700, fontSize: 12.5),
                 ),
               ],
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'avisos.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'app_theme.dart';
 import 'config_drive.dart';
@@ -50,10 +51,10 @@ Future<void> cargarProductosIniciales(BuildContext context) async {
         'fechaActualizacion': FieldValue.serverTimestamp(),
       });
     }
-    await lote.commit();
-    messenger.showSnackBar(SnackBar(content: Text('Se cargaron ${productosIniciales.length} productos')));
+    await lote.commit().conLimite();
+    messenger.mostrarAviso(SnackBar(content: Text('Se cargaron ${productosIniciales.length} productos')));
   } catch (e) {
-    messenger.showSnackBar(SnackBar(content: Text(mensajeError(e))));
+    messenger.mostrarAviso(SnackBar(content: Text(mensajeError(e))));
   }
 }
 
@@ -109,7 +110,7 @@ class _ProductosAdminState extends State<_ProductosAdmin> with AutomaticKeepAliv
                         style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 6),
                     Text('Carga el catálogo inicial de 40 créditos con imagen o crea los tuyos.',
-                        textAlign: TextAlign.center, style: TextStyle(color: Colors.grey.shade600)),
+                        textAlign: TextAlign.center, style: TextStyle(color: Paleta.gris600)),
                     const SizedBox(height: 16),
                     ElevatedButton.icon(
                       onPressed: () => cargarProductosIniciales(context),
@@ -160,7 +161,7 @@ class _ProductosAdminState extends State<_ProductosAdmin> with AutomaticKeepAliv
                             Text(p.nombre, style: const TextStyle(fontWeight: FontWeight.w700)),
                             Text(
                               '${fmtMoney(p.montoMin)} – ${fmtMoney(p.montoMax)} · ${p.plazoMin}–${p.plazoMax} meses',
-                              style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5),
+                              style: TextStyle(color: Paleta.gris600, fontSize: 12.5),
                             ),
                             Text(p.categoria,
                                 style: TextStyle(color: colorCategoria(p.categoria), fontSize: 12, fontWeight: FontWeight.w700)),
@@ -174,7 +175,7 @@ class _ProductosAdminState extends State<_ProductosAdmin> with AutomaticKeepAliv
                             .doc(p.id)
                             .update({'activo': v}).catchError((e) {
                           if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(mensajeError(e))));
+                            ScaffoldMessenger.of(context).mostrarAviso(SnackBar(content: Text(mensajeError(e))));
                           }
                         }),
                       ),
@@ -258,7 +259,7 @@ class _FormProductoState extends State<_FormProducto> {
   Future<void> _guardar() async {
     final messenger = ScaffoldMessenger.of(context);
     if (_nombre.text.trim().length < 3) {
-      messenger.showSnackBar(const SnackBar(content: Text('Escribe el nombre del crédito')));
+      messenger.mostrarAviso(const SnackBar(content: Text('Escribe el nombre del crédito')));
       return;
     }
     setState(() => _guardando = true);
@@ -271,13 +272,14 @@ class _FormProductoState extends State<_FormProducto> {
     try {
       final col = FirebaseFirestore.instance.collection('productosFinancieros');
       if (widget.producto == null) {
-        await col.add(datos);
+        await col.add(datos).conLimite();
       } else {
-        await col.doc(widget.producto!.id).set(datos);
+        await col.doc(widget.producto!.id).set(datos).conLimite();
       }
+      messenger.mostrarAviso(SnackBar(content: Text(widget.producto == null ? 'Crédito creado' : 'Cambios guardados')));
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text(mensajeError(e))));
+      messenger.mostrarAviso(SnackBar(content: Text(mensajeError(e))));
     } finally {
       if (mounted) setState(() => _guardando = false);
     }
@@ -287,11 +289,14 @@ class _FormProductoState extends State<_FormProducto> {
     final p = widget.producto;
     if (p == null) return;
     if (!await confirmar(context, 'Eliminar crédito', '¿Eliminar "${p.nombre}" del catálogo?', 'Eliminar')) return;
+    if (!mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
     try {
       await FirebaseFirestore.instance.collection('productosFinancieros').doc(p.id).delete();
+      messenger.mostrarAviso(SnackBar(content: Text('"${p.nombre}" se eliminó del catálogo')));
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(mensajeError(e))));
+      messenger.mostrarAviso(SnackBar(content: Text(mensajeError(e))));
     }
   }
 
@@ -302,7 +307,7 @@ class _FormProductoState extends State<_FormProducto> {
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: Paleta.superficie,
       builder: (ctx) => SizedBox(
         height: MediaQuery.of(ctx).size.height * 0.7,
         child: Column(
@@ -330,7 +335,7 @@ class _FormProductoState extends State<_FormProducto> {
                       onTap: () => Navigator.pop(ctx, img),
                       child: Container(
                         padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(color: AppColors.campo, borderRadius: BorderRadius.circular(14)),
+                        decoration: BoxDecoration(color: Paleta.campo, borderRadius: BorderRadius.circular(14)),
                         child: Image.asset(img),
                       ),
                     ),
@@ -401,7 +406,7 @@ class _FormProductoState extends State<_FormProducto> {
             decoration: const InputDecoration(labelText: 'Dirigido a', hintText: 'Ej. Bodegueros'),
           ),
           const SizedBox(height: 14),
-          Text('Categoría', style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+          Text('Categoría', style: TextStyle(color: Paleta.gris600, fontSize: 13)),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -431,7 +436,7 @@ class _FormProductoState extends State<_FormProducto> {
             onChanged: (r) => setState(() => _plazos = r),
           ),
           Text('Tasa: ${ConfigPrestamos.descripcionTasa} (la del negocio)',
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5)),
+              style: TextStyle(color: Paleta.gris600, fontSize: 12.5)),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             value: _activo,

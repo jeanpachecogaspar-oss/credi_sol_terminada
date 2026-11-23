@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'avisos.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'app_theme.dart';
@@ -58,7 +59,12 @@ class _CreditosScreenState extends State<CreditosScreen> {
           if (snap.hasError) {
             return errorConsulta(context, 'No se pudo cargar el catálogo', snap.error!, () => setState(_crear));
           }
-          final todos = (snap.data?.docs ?? []).map(ProductoFinanciero.desde).toList()
+          final docs = snap.data?.docs ?? [];
+          // Si el catálogo aún no se cargó en Firebase, se muestran los 40 productos
+          // incluidos en la app (con sus imágenes), para que el cliente nunca vea la lista vacía.
+          final todos = (snap.hasData && docs.isEmpty
+              ? productosIniciales.toList()
+              : docs.map(ProductoFinanciero.desde).toList())
             ..sort((a, b) {
               final c = categoriasCredito.indexOf(a.categoria).compareTo(categoriasCredito.indexOf(b.categoria));
               return c != 0 ? c : a.nombre.compareTo(b.nombre);
@@ -90,7 +96,7 @@ class _CreditosScreenState extends State<CreditosScreen> {
                     decoration: InputDecoration(
                       hintText: 'Busca: bodega, mototaxi, estudios…',
                       prefixIcon: const Icon(Icons.search_rounded),
-                      fillColor: Colors.white,
+                      fillColor: Paleta.superficie,
                       suffixIcon: _buscar.isEmpty
                           ? null
                           : IconButton(
@@ -197,7 +203,7 @@ class _TarjetaCredito extends StatelessWidget {
     final p = producto;
     final color = colorCategoria(p.categoria);
     return Material(
-      color: Colors.white,
+      color: Paleta.superficie,
       borderRadius: BorderRadius.circular(20),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -256,7 +262,7 @@ class _TarjetaCredito extends StatelessWidget {
               child: Text.rich(
                 TextSpan(
                   children: [
-                    TextSpan(text: 'desde ', style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                    TextSpan(text: 'desde ', style: TextStyle(color: Paleta.gris600, fontSize: 12)),
                     TextSpan(
                       text: '${fmtMoney(p.cuotaDesde)}/mes',
                       style: const TextStyle(color: AppColors.verde, fontWeight: FontWeight.w800, fontSize: 13),
@@ -308,9 +314,25 @@ class _DetalleCreditoScreenState extends State<DetalleCreditoScreen> {
           SliverAppBar(
             expandedHeight: 260,
             pinned: true,
-            backgroundColor: Colors.white,
+            // Al bajar, queda el mismo encabezado azul que el resto de la app.
+            backgroundColor: AppColors.azul,
             flexibleSpace: FlexibleSpaceBar(
-              background: Hero(tag: 'credito-${p.id}', child: ImagenProducto(p, padding: 48)),
+              background: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Hero(tag: 'credito-${p.id}', child: ImagenProducto(p, padding: 48)),
+                  // Franja azul arriba para que la flecha y los íconos blancos se lean sobre la imagen.
+                  const DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment(0, -0.2),
+                        colors: [AppColors.azul, Color(0x001E88E5)],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
             actions: const [BotonSeleccion(), SizedBox(width: 6)],
           ),
@@ -325,14 +347,14 @@ class _DetalleCreditoScreenState extends State<DetalleCreditoScreen> {
                   const SizedBox(height: 4),
                   Text(p.nombre, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 6),
-                  Text(p.descripcion, style: TextStyle(color: Colors.grey.shade700, height: 1.4)),
+                  Text(p.descripcion, style: TextStyle(color: Paleta.gris700, height: 1.4)),
                   if (p.publico.isNotEmpty) ...[
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        Icon(Icons.people_alt_outlined, size: 16, color: Colors.grey.shade600),
+                        Icon(Icons.people_alt_outlined, size: 16, color: Paleta.gris600),
                         const SizedBox(width: 6),
-                        Text('Para: ${p.publico}', style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+                        Text('Para: ${p.publico}', style: TextStyle(color: Paleta.gris600, fontSize: 13)),
                       ],
                     ),
                   ],
@@ -367,7 +389,7 @@ class _DetalleCreditoScreenState extends State<DetalleCreditoScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Cuota mensual', style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+                                  Text('Cuota mensual', style: TextStyle(color: Paleta.gris600, fontSize: 13)),
                                   TweenAnimationBuilder<double>(
                                     tween: Tween(end: cuota),
                                     duration: const Duration(milliseconds: 300),
@@ -385,7 +407,7 @@ class _DetalleCreditoScreenState extends State<DetalleCreditoScreen> {
                                 Text(ConfigPrestamos.descripcionTasa,
                                     style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
                                 Text('Total ${fmtMoney(cuota * _plazo)}',
-                                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5)),
+                                    style: TextStyle(color: Paleta.gris600, fontSize: 12.5)),
                               ],
                             ),
                           ],
@@ -423,7 +445,7 @@ class _DetalleCreditoScreenState extends State<DetalleCreditoScreen> {
                 child: OutlinedButton.icon(
                   onPressed: () {
                     SeleccionCreditos.instancia.agregar(p, _monto, _plazo);
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    ScaffoldMessenger.of(context).mostrarAviso(SnackBar(
                       content: Text('${p.nombre} agregado a tu selección'),
                       action: SnackBarAction(label: 'Ver', onPressed: () => abrirSeleccion(context)),
                     ));
@@ -449,7 +471,7 @@ class _DetalleCreditoScreenState extends State<DetalleCreditoScreen> {
 
   Widget _filaSlider(String t, String v) => Row(
         children: [
-          Text(t, style: TextStyle(color: Colors.grey.shade700)),
+          Text(t, style: TextStyle(color: Paleta.gris700)),
           const Spacer(),
           Text(v, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         ],
@@ -561,7 +583,7 @@ class _MiSeleccionScreenState extends State<MiSeleccionScreen> {
               Text(
                 'Envías una solicitud a la vez. Al enviarla, el crédito sale de tu selección.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5),
+                style: TextStyle(color: Paleta.gris600, fontSize: 12.5),
               ),
             ],
           );
@@ -607,7 +629,7 @@ class _ItemSeleccion extends StatelessWidget {
                       Text(p.nombre, style: const TextStyle(fontWeight: FontWeight.w700)),
                       const SizedBox(height: 2),
                       Text('${fmtMoney(c.monto)} en ${c.plazo} meses',
-                          style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+                          style: TextStyle(color: Paleta.gris600, fontSize: 13)),
                       Text('${fmtMoney(c.cuota)}/mes',
                           style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.azulOscuro)),
                     ],

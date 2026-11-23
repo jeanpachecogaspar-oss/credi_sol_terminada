@@ -72,7 +72,7 @@ class _ClienteShellState extends State<ClienteShell> with WidgetsBindingObserver
       bottomNavigationBar: NavigationBar(
         selectedIndex: tabCliente.value,
         onDestinationSelected: (i) => tabCliente.value = i,
-        backgroundColor: Colors.white,
+        backgroundColor: Paleta.superficie,
         indicatorColor: azul.withValues(alpha: 0.12),
         destinations: const [
           NavigationDestination(

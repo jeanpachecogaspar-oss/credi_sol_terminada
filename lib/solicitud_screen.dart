@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'avisos.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -139,7 +140,7 @@ class _SolicitudScreenState extends State<SolicitudScreen> {
   Widget _campoNegocio() {
     final n = _negocio;
     return Material(
-      color: n == null ? AppColors.campo : AppColors.verde.withValues(alpha: 0.08),
+      color: n == null ? Paleta.campo : AppColors.verde.withValues(alpha: 0.08),
       borderRadius: BorderRadius.circular(14),
       child: ListTile(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -248,7 +249,7 @@ class _SolicitudScreenState extends State<SolicitudScreen> {
 
   void _msg(String t) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t)));
+    ScaffoldMessenger.of(context).mostrarAviso(SnackBar(content: Text(t)));
   }
 
   // ---------------- Carga de datos guardados ----------------
@@ -539,13 +540,13 @@ class _SolicitudScreenState extends State<SolicitudScreen> {
         'fechaSolicitud': FieldValue.serverTimestamp(),
       });
 
-      await batch.commit();
+      await batch.commit().conLimite();
 
       widget.alEnviar?.call();
       if (!mounted) return;
       tabCliente.value = tabPrestamos;
       Navigator.pop(context);
-      messenger.showSnackBar(
+      messenger.mostrarAviso(
         const SnackBar(content: Text('Solicitud enviada. Un administrador la revisará pronto.')),
       );
     } catch (e) {
@@ -595,7 +596,7 @@ class _SolicitudScreenState extends State<SolicitudScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.cloud_off_rounded, size: 56, color: Colors.grey.shade400),
+            Icon(Icons.cloud_off_rounded, size: 56, color: Paleta.gris400),
             const SizedBox(height: 12),
             Text(_errorPerfil!, textAlign: TextAlign.center),
             const SizedBox(height: 16),
@@ -608,7 +609,7 @@ class _SolicitudScreenState extends State<SolicitudScreen> {
 
   Widget _indicador() {
     return Container(
-      color: Colors.white,
+      color: Paleta.superficie,
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 14),
       child: Row(
         children: [
@@ -622,7 +623,7 @@ class _SolicitudScreenState extends State<SolicitudScreen> {
                     Container(
                       height: 5,
                       decoration: BoxDecoration(
-                        color: i <= _paso ? azul : Colors.grey.shade300,
+                        color: i <= _paso ? azul : Paleta.gris300,
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
@@ -632,7 +633,7 @@ class _SolicitudScreenState extends State<SolicitudScreen> {
                       style: TextStyle(
                         fontSize: 12.5,
                         fontWeight: i == _paso ? FontWeight.bold : FontWeight.w500,
-                        color: i <= _paso ? AppColors.texto : Colors.grey.shade500,
+                        color: i <= _paso ? Paleta.texto : Paleta.gris500,
                       ),
                     ),
                   ],
@@ -650,9 +651,9 @@ class _SolicitudScreenState extends State<SolicitudScreen> {
       top: false,
       child: Container(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          border: Border(top: BorderSide(color: Color(0xFFE8ECF3))),
+        decoration: BoxDecoration(
+          color: Paleta.superficie,
+          border: Border(top: BorderSide(color: Paleta.borde)),
         ),
         child: Row(
           children: [
@@ -694,7 +695,7 @@ class _SolicitudScreenState extends State<SolicitudScreen> {
         children: [
           Text(
             'Estos datos se guardan en tu perfil y se usarán en tus próximas solicitudes.',
-            style: TextStyle(color: Colors.grey.shade700, fontSize: 13.5),
+            style: TextStyle(color: Paleta.gris700, fontSize: 13.5),
           ),
           const SizedBox(height: 16),
           _campo(_nombreCtrl, 'Nombres y apellidos', Icons.person_outline_rounded,
@@ -770,7 +771,7 @@ class _SolicitudScreenState extends State<SolicitudScreen> {
           ),
           child: Text(
             _nacimiento == null ? 'Seleccionar' : '${fmtFecha(_nacimiento!)} (${edad(_nacimiento!)} años)',
-            style: TextStyle(fontSize: 15, color: _nacimiento == null ? Colors.grey.shade500 : null),
+            style: TextStyle(fontSize: 15, color: _nacimiento == null ? Paleta.gris500 : null),
           ),
         ),
       ),
@@ -786,7 +787,7 @@ class _SolicitudScreenState extends State<SolicitudScreen> {
         Text(
           'Toma las fotos con la cámara del celular. La app revisa cada foto al instante (rostro, número de DNI '
           'y dirección del recibo frente a tu GPS). Solo las verá el personal que evalúa tu solicitud.',
-          style: TextStyle(color: Colors.grey.shade700, fontSize: 13.5),
+          style: TextStyle(color: Paleta.gris700, fontSize: 13.5),
         ),
         const SizedBox(height: 16),
         for (final f in fotosRequeridas) ...[
@@ -807,9 +808,9 @@ class _SolicitudScreenState extends State<SolicitudScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Paleta.superficie,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: lista ? AppColors.verde.withValues(alpha: 0.5) : const Color(0xFFE8ECF3)),
+        border: Border.all(color: lista ? AppColors.verde.withValues(alpha: 0.5) : Paleta.borde),
       ),
       child: Row(
         children: [
@@ -818,7 +819,7 @@ class _SolicitudScreenState extends State<SolicitudScreen> {
             child: Container(
               width: 72,
               height: 72,
-              color: AppColors.campo,
+              color: Paleta.campo,
               child: nueva != null
                   ? Image.memory(nueva, fit: BoxFit.cover)
                   : Icon(
@@ -827,7 +828,7 @@ class _SolicitudScreenState extends State<SolicitudScreen> {
                           : (tipo.frontal
                               ? Icons.face_rounded
                               : (tipo.id == 'recibo_servicio' ? Icons.receipt_long_outlined : Icons.badge_outlined)),
-                      color: existe ? AppColors.verde : Colors.grey.shade400,
+                      color: existe ? AppColors.verde : Paleta.gris400,
                       size: 34,
                     ),
             ),
@@ -844,7 +845,7 @@ class _SolicitudScreenState extends State<SolicitudScreen> {
                     children: [
                       const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2)),
                       const SizedBox(width: 8),
-                      Text('Analizando la foto…', style: TextStyle(color: Colors.grey.shade700, fontSize: 12.5)),
+                      Text('Analizando la foto…', style: TextStyle(color: Paleta.gris700, fontSize: 12.5)),
                     ],
                   )
                 else if (validacion != null)
@@ -876,7 +877,7 @@ class _SolicitudScreenState extends State<SolicitudScreen> {
                         : existe
                             ? 'Registrada${fechaExistente != null ? ' el ${fmtFecha(fechaExistente)}' : ''}. Puedes reemplazarla.'
                             : tipo.instruccion,
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5),
+                    style: TextStyle(color: Paleta.gris600, fontSize: 12.5),
                   ),
                 const SizedBox(height: 8),
                 Wrap(
@@ -933,7 +934,7 @@ class _SolicitudScreenState extends State<SolicitudScreen> {
         const SizedBox(height: 8),
         Text(
           'Sin comisiones ni seguros. Las fechas de pago se calculan desde el día en que se aprueba tu préstamo.',
-          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+          style: TextStyle(fontSize: 12, color: Paleta.gris600),
         ),
         const SizedBox(height: 14),
         _tarjeta(
@@ -981,7 +982,7 @@ class _SolicitudScreenState extends State<SolicitudScreen> {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 14, 20, 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Paleta.superficie,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [BoxShadow(color: azul.withValues(alpha: 0.08), blurRadius: 24, offset: const Offset(0, 10))],
       ),
@@ -1023,7 +1024,7 @@ class _SolicitudScreenState extends State<SolicitudScreen> {
         if (detalle != null)
           Padding(
             padding: const EdgeInsets.fromLTRB(48, 0, 0, 8),
-            child: Text(detalle, style: TextStyle(fontSize: 12, color: Colors.grey.shade700, height: 1.4)),
+            child: Text(detalle, style: TextStyle(fontSize: 12, color: Paleta.gris700, height: 1.4)),
           ),
       ],
     );
@@ -1035,7 +1036,7 @@ class _SolicitudScreenState extends State<SolicitudScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(child: Text(titulo, style: TextStyle(color: Colors.grey.shade600, fontSize: 14))),
+          Expanded(child: Text(titulo, style: TextStyle(color: Paleta.gris600, fontSize: 14))),
           const SizedBox(width: 12),
           Flexible(
             child: Text(

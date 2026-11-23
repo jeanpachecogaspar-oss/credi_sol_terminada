@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'avisos.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'config_prestamos.dart';
 
@@ -12,7 +13,7 @@ Future<void> abrirWhatsApp(BuildContext context, {String mensaje = 'Hola, necesi
     final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!ok) throw Exception('no abrió');
   } catch (_) {
-    messenger.showSnackBar(
+    messenger.mostrarAviso(
       const SnackBar(content: Text('No se pudo abrir WhatsApp. Verifica que esté instalado.')),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'avisos.dart';
 import 'package:flutter/services.dart';
 import 'app_theme.dart';
 import 'formato.dart';
@@ -53,7 +54,7 @@ class _PlanificadorInversionScreenState extends State<PlanificadorInversionScree
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
         children: [
           Text('Mantén presionado un producto y arrástralo a tu canasta. También puedes tocar el +.',
-              style: TextStyle(color: Colors.grey.shade700)),
+              style: TextStyle(color: Paleta.gris700)),
           const SizedBox(height: 10),
           const Text('Rubro de tu negocio', style: TextStyle(fontWeight: FontWeight.w600)),
           const SizedBox(height: 6),
@@ -113,7 +114,7 @@ class _PlanificadorInversionScreenState extends State<PlanificadorInversionScree
                 color: _resaltar ? AppColors.azul.withValues(alpha: 0.08) : Colors.white,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: _resaltar ? AppColors.azul : Colors.grey.shade300,
+                  color: _resaltar ? AppColors.azul : Paleta.gris300,
                   width: _resaltar ? 2 : 1,
                 ),
               ),
@@ -135,7 +136,7 @@ class _PlanificadorInversionScreenState extends State<PlanificadorInversionScree
                       padding: const EdgeInsets.symmetric(vertical: 22),
                       child: Center(
                         child: Text('Suelta aquí los productos',
-                            style: TextStyle(color: Colors.grey.shade500, fontWeight: FontWeight.w600)),
+                            style: TextStyle(color: Paleta.gris500, fontWeight: FontWeight.w600)),
                       ),
                     )
                   else
@@ -152,7 +153,7 @@ class _PlanificadorInversionScreenState extends State<PlanificadorInversionScree
                                 children: [
                                   Text(e.key.nombre, style: const TextStyle(fontWeight: FontWeight.w600)),
                                   Text('${e.value} × ${fmtMoney(e.key.costo)} = ${fmtMoney(e.key.costo * e.value)}',
-                                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+                                      style: TextStyle(fontSize: 12, color: Paleta.gris600)),
                                 ],
                               ),
                             ),
@@ -234,7 +235,7 @@ class _PlanificadorInversionScreenState extends State<PlanificadorInversionScree
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(titulo, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 17, color: color)),
-                    Text(texto, style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
+                    Text(texto, style: TextStyle(color: Paleta.gris700, fontSize: 13)),
                   ],
                 ),
               ),
@@ -257,7 +258,7 @@ class _PlanificadorInversionScreenState extends State<PlanificadorInversionScree
                 Clipboard.setData(ClipboardData(text: r.montoPrestamo.toStringAsFixed(0)));
                 tabCliente.value = tabSimular;
                 Navigator.popUntil(context, (route) => route.isFirst);
-                messenger.showSnackBar(SnackBar(
+                messenger.mostrarAviso(SnackBar(
                   content: Text('Simula ${fmtMoney(r.montoPrestamo)} a $_plazo meses (monto copiado).'),
                 ));
               },
@@ -282,9 +283,9 @@ class _TarjetaInsumo extends StatelessWidget {
       width: 132,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Paleta.superficie,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(color: Paleta.gris300),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -306,7 +307,7 @@ class _TarjetaInsumo extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12.5)),
           const Spacer(),
-          Text('Costo ${fmtMoney(insumo.costo)}', style: TextStyle(fontSize: 11, color: Colors.grey.shade700)),
+          Text('Costo ${fmtMoney(insumo.costo)}', style: TextStyle(fontSize: 11, color: Paleta.gris700)),
           if (insumo.precioVenta > 0)
             Text('Vende ${fmtMoney(insumo.precioVenta)}',
                 style: const TextStyle(fontSize: 11, color: AppColors.verde, fontWeight: FontWeight.w600)),

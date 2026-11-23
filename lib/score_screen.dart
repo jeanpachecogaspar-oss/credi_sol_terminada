@@ -172,7 +172,7 @@ class Velocimetro extends StatelessWidget {
             alignment: Alignment.bottomCenter,
             child: Text(
               v.round().toString(),
-              style: TextStyle(fontSize: tamano * 0.16, fontWeight: FontWeight.w800, color: AppColors.texto),
+              style: TextStyle(fontSize: tamano * 0.16, fontWeight: FontWeight.w800, color: Paleta.texto),
             ),
           ),
         ),
@@ -197,7 +197,7 @@ class _PintorVelocimetro extends CustomPainter {
           ..style = PaintingStyle.stroke
           ..strokeWidth = grosor
           ..strokeCap = StrokeCap.round
-          ..color = const Color(0xFFE8ECF3));
+          ..color = Paleta.borde);
     // Arco de color (rojo → ámbar → verde)
     canvas.drawArc(rect, math.pi, math.pi * valor, false,
         Paint()
@@ -211,7 +211,7 @@ class _PintorVelocimetro extends CustomPainter {
           ).createShader(rect));
     // Marcas
     final marca = Paint()
-      ..color = Colors.grey.shade400
+      ..color = Paleta.gris400
       ..strokeWidth = 2;
     for (var i = 0; i <= 10; i++) {
       final a = math.pi + math.pi * i / 10;
@@ -226,10 +226,10 @@ class _PintorVelocimetro extends CustomPainter {
         centro,
         punta,
         Paint()
-          ..color = AppColors.texto
+          ..color = Paleta.texto
           ..strokeWidth = 4
           ..strokeCap = StrokeCap.round);
-    canvas.drawCircle(centro, grosor * 0.45, Paint()..color = AppColors.texto);
+    canvas.drawCircle(centro, grosor * 0.45, Paint()..color = Paleta.texto);
   }
 
   @override
@@ -259,7 +259,7 @@ class _TarjetaScoreState extends State<TarjetaScore> {
         builder: (context, snap) {
           final s = snap.data;
           return Material(
-            color: Colors.white,
+            color: Paleta.superficie,
             borderRadius: BorderRadius.circular(22),
             child: InkWell(
               borderRadius: BorderRadius.circular(22),
@@ -296,11 +296,11 @@ class _TarjetaScoreState extends State<TarjetaScore> {
                               s.montoPreaprobado > 0
                                   ? 'Preaprobado hasta ${fmtMoney(s.montoPreaprobado)}'
                                   : 'Toca para ver cómo mejorarlo',
-                              style: TextStyle(color: Colors.grey.shade700, fontSize: 12.5),
+                              style: TextStyle(color: Paleta.gris700, fontSize: 12.5),
                             ),
                           ] else
                             Text(snap.hasError ? 'No disponible ahora' : 'Calculando…',
-                                style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5)),
+                                style: TextStyle(color: Paleta.gris600, fontSize: 12.5)),
                         ],
                       ),
                     ),
@@ -337,7 +337,7 @@ class ScoreScreen extends StatelessWidget {
           const SizedBox(height: 4),
           Center(
             child: Text('Puntaje de 0 a 1000 calculado con tu historial en CrediSol',
-                style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5)),
+                style: TextStyle(color: Paleta.gris600, fontSize: 12.5)),
           ),
           const SizedBox(height: 18),
           Container(
@@ -384,7 +384,7 @@ class ScoreScreen extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 10),
               child: Container(
                 padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+                decoration: BoxDecoration(color: Paleta.superficie, borderRadius: BorderRadius.circular(16)),
                 child: Row(
                   children: [
                     Icon(
@@ -401,7 +401,7 @@ class ScoreScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(f.titulo, style: const TextStyle(fontWeight: FontWeight.w700)),
-                          Text(f.detalle, style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5)),
+                          Text(f.detalle, style: TextStyle(color: Paleta.gris600, fontSize: 12.5)),
                         ],
                       ),
                     ),
@@ -419,7 +419,7 @@ class ScoreScreen extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             'Consejo: paga tus cuotas antes del vencimiento y mantén tus cuotas por debajo del 40 % de tu ingreso.',
-            style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5),
+            style: TextStyle(color: Paleta.gris600, fontSize: 12.5),
           ),
         ],
       ),

@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'avisos.dart';
+import 'huella.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'registro_screen.dart';
@@ -89,8 +91,12 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
 
     try {
       // Al iniciar sesión, AuthGate detecta el cambio y abre la pantalla según el rol.
+      // Se marca ANTES: Firebase avisa del inicio de sesión antes de que termine este await.
+      // Así no se pide la huella a quien acaba de escribir su contraseña.
+      Huella.recienAutenticado = true;
       await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
     } on FirebaseAuthException catch (e) {
+      Huella.recienAutenticado = false;
       switch (e.code) {
         case 'user-not-found':
           _mensaje('No existe una cuenta con ese correo');
@@ -107,11 +113,20 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
         case 'network-request-failed':
           _mensaje('Sin conexión a internet');
           break;
+        case 'too-many-requests':
+          _mensaje('Demasiados intentos fallidos. Espera unos minutos o usa "¿Olvidaste tu contraseña?"');
+          break;
+        case 'user-disabled':
+          _mensaje('Esta cuenta está deshabilitada. Contacta a CrediSol');
+          break;
         default:
-          _mensaje('Error al iniciar sesión: ${e.message}');
+          debugPrint('Login: ${e.code} ${e.message}');
+          _mensaje('No se pudo iniciar sesión (${e.code}). Inténtalo de nuevo');
       }
     } catch (e) {
-      _mensaje('Error inesperado: $e');
+      Huella.recienAutenticado = false;
+      debugPrint('Login: $e');
+      _mensaje('No se pudo iniciar sesión. Inténtalo de nuevo');
     } finally {
       if (mounted) setState(() => _cargando = false);
     }
@@ -119,7 +134,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
 
   void _mensaje(String texto) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(texto)));
+    ScaffoldMessenger.of(context).mostrarAviso(SnackBar(content: Text(texto)));
   }
 
   @override

@@ -136,13 +136,13 @@ class _UbicarNegocioScreenState extends State<UbicarNegocioScreen> {
             child: Material(
               elevation: 2,
               borderRadius: BorderRadius.circular(14),
-              color: Colors.white,
+              color: Paleta.superficie,
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: Text(
                   'Mueve el mapa hasta que el pin quede sobre la puerta de tu negocio. '
                   'Tu asesor lo usará para visitarte.',
-                  style: TextStyle(fontSize: 12.5, color: Colors.grey.shade800),
+                  style: TextStyle(fontSize: 12.5, color: Paleta.gris800),
                 ),
               ),
             ),
@@ -164,7 +164,7 @@ class _UbicarNegocioScreenState extends State<UbicarNegocioScreen> {
               child: Material(
                 elevation: 4,
                 borderRadius: BorderRadius.circular(18),
-                color: Colors.white,
+                color: Paleta.superficie,
                 child: Padding(
                   padding: const EdgeInsets.all(14),
                   child: Column(

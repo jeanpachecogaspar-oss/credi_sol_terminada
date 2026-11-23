@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'app_theme.dart';
+import 'avisos.dart';
+import 'huella.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'apis_peru.dart';
@@ -46,7 +50,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
 
   void _mensaje(String texto) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(texto)));
+    ScaffoldMessenger.of(context).mostrarAviso(SnackBar(content: Text(texto)));
   }
 
   /// Consulta el DNI en RENIEC (APIsPERU) y completa el nombre automáticamente.
@@ -127,6 +131,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
 
     try {
       // 1. Crear cuenta (sin GPS: la ubicación solo se pide cuando hace falta)
+      Huella.recienAutenticado = true; // acaba de crear su contraseña: no se pide huella
       final credencial = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
@@ -147,6 +152,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
       _mensaje('Cuenta creada correctamente');
       Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
+      Huella.recienAutenticado = false;
       switch (e.code) {
         case 'email-already-in-use':
           _mensaje('Ya existe una cuenta con ese correo');
@@ -164,6 +170,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
           _mensaje('Error al registrar: ${e.message}');
       }
     } catch (e) {
+      Huella.recienAutenticado = false;
       _mensaje('Error inesperado: $e');
     } finally {
       if (mounted) setState(() => _cargando = false);
@@ -171,13 +178,19 @@ class _RegistroScreenState extends State<RegistroScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  // Las pantallas de acceso tienen su propio diseño claro (degradado celeste):
+  // se mantienen claras aunque la app esté en modo oscuro.
+  Widget build(BuildContext context) =>
+      Theme(data: AppTheme.claro, child: Builder(builder: _pantallaClara));
+
+  Widget _pantallaClara(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: const Color(0xFF1A1A2E),
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
       ),
       body: Stack(
         children: [

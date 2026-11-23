@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'avisos.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
@@ -27,7 +28,7 @@ Future<String?> leerDniConCamara(BuildContext context, {ImageSource fuente = Ima
       final r = await lector.processImage(InputImage.fromFilePath(foto.path));
       final dni = extraerDni(r.text);
       if (dni == null) {
-        messenger.showSnackBar(const SnackBar(
+        messenger.mostrarAviso(const SnackBar(
           content: Text('No se pudo leer el número. Enfoca el DNI completo, con buena luz y sin reflejos.'),
         ));
         return null;
@@ -38,7 +39,7 @@ Future<String?> leerDniConCamara(BuildContext context, {ImageSource fuente = Ima
       await lector.close();
     }
   } on PlatformException catch (e) {
-    messenger.showSnackBar(SnackBar(
+    messenger.mostrarAviso(SnackBar(
       content: Text(e.code == 'camera_access_denied' || e.code == 'photo_access_denied'
           ? 'Permite el acceso a la cámara y a las fotos desde los ajustes del celular.'
           : 'No se pudo abrir la cámara o la galería.'),

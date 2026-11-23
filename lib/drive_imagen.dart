@@ -91,7 +91,7 @@ class ImagenDrive extends StatelessWidget {
     return Container(
       width: width,
       height: height,
-      color: const Color(0xFFEFF3F9),
+      color: Paleta.placeholder,
       alignment: Alignment.center,
       child: icono == null ? null : Icon(icono, color: AppColors.gris.withValues(alpha: 0.6), size: 32),
     );
@@ -148,7 +148,7 @@ Future<String?> elegirImagenDrive(BuildContext context) {
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
-    backgroundColor: Colors.white,
+    backgroundColor: Paleta.superficie,
     builder: (ctx) => const _SelectorDrive(),
   );
 }
@@ -185,7 +185,7 @@ class _SelectorDriveState extends State<_SelectorDrive> {
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
             child: Text(
               'Sube las fotos a la carpeta compartida y aparecerán aquí.',
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+              style: TextStyle(color: Paleta.gris600, fontSize: 13),
             ),
           ),
           Expanded(
@@ -203,12 +203,12 @@ class _SelectorDriveState extends State<_SelectorDrive> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.cloud_off_rounded, size: 52, color: Colors.grey.shade400),
+                          Icon(Icons.cloud_off_rounded, size: 52, color: Paleta.gris400),
                           const SizedBox(height: 12),
                           Text(
                             e is StateError ? e.message : 'No se pudo leer la carpeta de Drive.',
                             textAlign: TextAlign.center,
-                            style: TextStyle(color: Colors.grey.shade700),
+                            style: TextStyle(color: Paleta.gris700),
                           ),
                           const SizedBox(height: 12),
                           TextButton.icon(
@@ -224,7 +224,7 @@ class _SelectorDriveState extends State<_SelectorDrive> {
                 final archivos = snap.data ?? [];
                 if (archivos.isEmpty) {
                   return Center(
-                    child: Text('La carpeta no tiene imágenes.', style: TextStyle(color: Colors.grey.shade600)),
+                    child: Text('La carpeta no tiene imágenes.', style: TextStyle(color: Paleta.gris600)),
                   );
                 }
                 return GridView.builder(

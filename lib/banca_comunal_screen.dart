@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'avisos.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -37,7 +38,7 @@ class BancaComunalScreen extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      backgroundColor: Colors.white,
+      backgroundColor: Paleta.superficie,
       builder: (ctx) => const _FormGrupo(crear: true),
     );
     if (datos == null || !context.mounted) return;
@@ -64,11 +65,11 @@ class BancaComunalScreen extends StatelessWidget {
         'estado': 'Formando',
         'fechaCreacion': FieldValue.serverTimestamp(),
         'fechaActualizacion': FieldValue.serverTimestamp(),
-      });
-      messenger.showSnackBar(SnackBar(content: Text('Grupo creado. Comparte el código $codigo con tus socios.')));
+      }).conLimite();
+      messenger.mostrarAviso(SnackBar(content: Text('Grupo creado. Comparte el código $codigo con tus socios.')));
     } catch (e) {
       debugPrint('Crear grupo: $e');
-      messenger.showSnackBar(SnackBar(content: Text('No se pudo crear el grupo. ${mensajeError(e)}')));
+      messenger.mostrarAviso(SnackBar(content: Text('No se pudo crear el grupo. ${mensajeError(e)}')));
     }
   }
 
@@ -77,7 +78,7 @@ class BancaComunalScreen extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      backgroundColor: Colors.white,
+      backgroundColor: Paleta.superficie,
       builder: (ctx) => const _FormGrupo(crear: false),
     );
     if (datos == null || !context.mounted) return;
@@ -103,10 +104,10 @@ class BancaComunalScreen extends StatelessWidget {
           'fechaActualizacion': FieldValue.serverTimestamp(),
         });
       });
-      messenger.showSnackBar(const SnackBar(content: Text('¡Te uniste al grupo!')));
+      messenger.mostrarAviso(const SnackBar(content: Text('¡Te uniste al grupo!')));
     } catch (e) {
       debugPrint('Unirme al grupo: $e');
-      messenger.showSnackBar(SnackBar(content: Text(mensajeError(e))));
+      messenger.mostrarAviso(SnackBar(content: Text(mensajeError(e))));
     }
   }
 
@@ -142,7 +143,7 @@ class BancaComunalScreen extends StatelessWidget {
                       'Forma un grupo de $minIntegrantesGrupo a $maxIntegrantesGrupo socios o vecinos de tu mercado. '
                       'Cada uno elige su monto y paga su propia cuota; si alguien se atrasa, el grupo lo respalda. '
                       'Ideal si es tu primer préstamo.',
-                      style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
+                      style: TextStyle(color: Paleta.gris700, fontSize: 13),
                     ),
                     const SizedBox(height: 12),
                     Row(
@@ -199,10 +200,10 @@ class _TarjetaGrupo extends StatelessWidget {
       await doc.reference.update({
         'estado': 'Enviado',
         'fechaEnvio': FieldValue.serverTimestamp(),
-      });
-      messenger.showSnackBar(const SnackBar(content: Text('Grupo enviado al asesor. Te avisaremos su respuesta.')));
+      }).conLimite();
+      messenger.mostrarAviso(const SnackBar(content: Text('Grupo enviado al asesor. Te avisaremos su respuesta.')));
     } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text('No se pudo enviar. ${mensajeError(e)}')));
+      messenger.mostrarAviso(SnackBar(content: Text('No se pudo enviar. ${mensajeError(e)}')));
     }
   }
 
@@ -211,7 +212,7 @@ class _TarjetaGrupo extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      backgroundColor: Colors.white,
+      backgroundColor: Paleta.superficie,
       builder: (ctx) => _FormGrupo(crear: false, soloMonto: true, montoInicial: actual),
     );
     if (nuevo == null || !context.mounted) return;
@@ -220,9 +221,10 @@ class _TarjetaGrupo extends StatelessWidget {
       await doc.reference.update({
         'detalle.$uid': {'nombre': nombre, 'monto': nuevo.$3},
         'fechaActualizacion': FieldValue.serverTimestamp(),
-      });
+      }).conLimite();
+      messenger.mostrarAviso(const SnackBar(content: Text('Monto actualizado')));
     } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text('No se pudo cambiar. ${mensajeError(e)}')));
+      messenger.mostrarAviso(SnackBar(content: Text('No se pudo cambiar. ${mensajeError(e)}')));
     }
   }
 
@@ -256,7 +258,7 @@ class _TarjetaGrupo extends StatelessWidget {
                     Text((d['nombre'] ?? 'Grupo').toString(),
                         style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
                     Text('$plazo meses · ${miembros.length}/$maxIntegrantesGrupo integrantes',
-                        style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5)),
+                        style: TextStyle(color: Paleta.gris600, fontSize: 12.5)),
                   ],
                 ),
               ),
@@ -268,7 +270,7 @@ class _TarjetaGrupo extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             onTap: () {
               Clipboard.setData(ClipboardData(text: codigo));
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Código copiado')));
+              ScaffoldMessenger.of(context).mostrarAviso(const SnackBar(content: Text('Código copiado')));
             },
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
@@ -330,7 +332,7 @@ class _TarjetaGrupo extends StatelessWidget {
                 label: const Text('Enviar al asesor'),
               )
             else
-              Text('El creador del grupo lo enviará al asesor.', style: TextStyle(color: Colors.grey.shade600)),
+              Text('El creador del grupo lo enviará al asesor.', style: TextStyle(color: Paleta.gris600)),
           ],
         ],
       ),

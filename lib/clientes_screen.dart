@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'avisos.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'app_theme.dart';
@@ -153,7 +154,7 @@ class _ClientesScreenState extends State<ClientesScreen> {
                         _filtro.isEmpty
                             ? '${todos.length} clientes registrados'
                             : '${docs.length} de ${todos.length} clientes',
-                        style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                        style: TextStyle(color: Paleta.gris600, fontSize: 13),
                       );
                     }
                     return _tarjeta(context, docs[i - 1]);
@@ -174,11 +175,11 @@ class _ClientesScreenState extends State<ClientesScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icono, size: 60, color: Colors.grey.shade400),
+            Icon(icono, size: 60, color: Paleta.gris400),
             const SizedBox(height: 14),
             Text(titulo, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
             const SizedBox(height: 6),
-            Text(texto, textAlign: TextAlign.center, style: TextStyle(color: Colors.grey.shade600)),
+            Text(texto, textAlign: TextAlign.center, style: TextStyle(color: Paleta.gris600)),
           ],
         ),
       ),
@@ -199,7 +200,7 @@ class _ClientesScreenState extends State<ClientesScreen> {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Paleta.superficie,
           borderRadius: BorderRadius.circular(18),
           boxShadow: [BoxShadow(color: _azul.withValues(alpha: 0.06), blurRadius: 14, offset: const Offset(0, 6))],
         ),
@@ -219,7 +220,7 @@ class _ClientesScreenState extends State<ClientesScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(nombre, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  Text((d['email'] ?? '').toString(), style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+                  Text((d['email'] ?? '').toString(), style: TextStyle(color: Paleta.gris600, fontSize: 13)),
                   const SizedBox(height: 6),
                   Row(
                     children: [
@@ -233,7 +234,7 @@ class _ClientesScreenState extends State<ClientesScreen> {
                         ubic != null ? 'Ubicación ${_hace(ubic.fecha)}' : 'Sin ubicación',
                         style: TextStyle(
                           fontSize: 12.5,
-                          color: ubic != null ? _verde : Colors.grey.shade600,
+                          color: ubic != null ? _verde : Paleta.gris600,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -266,7 +267,7 @@ class _DetalleCliente extends StatelessWidget {
   }
 
   void _aviso(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No se pudo abrir Google Maps')));
+    ScaffoldMessenger.of(context).mostrarAviso(const SnackBar(content: Text('No se pudo abrir Google Maps')));
   }
 
   @override
@@ -303,7 +304,7 @@ class _DetalleCliente extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(nombre, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                        Text((d['email'] ?? '').toString(), style: TextStyle(color: Colors.grey.shade600)),
+                        Text((d['email'] ?? '').toString(), style: TextStyle(color: Paleta.gris600)),
                       ],
                     ),
                   ),
@@ -330,7 +331,7 @@ class _DetalleCliente extends StatelessWidget {
                         ? DatosPersonalesAdmin(uid: uid, d: d)
                         : Text(
                             'El cliente aún no completó sus datos personales. Se piden al enviar su primera solicitud.',
-                            style: TextStyle(color: Colors.grey.shade600),
+                            style: TextStyle(color: Paleta.gris600),
                           ),
                   ],
                 ),
@@ -352,7 +353,7 @@ class _DetalleCliente extends StatelessWidget {
     if (u == null) {
       return Row(
         children: [
-          Icon(Icons.location_off_rounded, color: Colors.grey.shade500),
+          Icon(Icons.location_off_rounded, color: Paleta.gris500),
           const SizedBox(width: 12),
           const Expanded(child: Text('Este cliente todavía no tiene una ubicación registrada.')),
         ],
@@ -406,7 +407,7 @@ class _DetalleCliente extends StatelessWidget {
               .compareTo(_aFecha(a.data()['fechaSolicitud']) ?? DateTime.now()));
 
         if (docs.isEmpty) {
-          return Text('Este cliente aún no tiene préstamos.', style: TextStyle(color: Colors.grey.shade600));
+          return Text('Este cliente aún no tiene préstamos.', style: TextStyle(color: Paleta.gris600));
         }
 
         return Column(
@@ -417,7 +418,7 @@ class _DetalleCliente extends StatelessWidget {
             return Container(
               margin: const EdgeInsets.only(bottom: 10),
               padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+              decoration: BoxDecoration(color: Paleta.superficie, borderRadius: BorderRadius.circular(16)),
               child: Row(
                 children: [
                   Expanded(
@@ -427,7 +428,7 @@ class _DetalleCliente extends StatelessWidget {
                         Text(fmtMoney(_aNum(p['monto'])), style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
                         Text(
                           'Cuota ${fmtMoney(_aNum(p['cuotaMensual']))} · ${p['plazoMeses']} meses',
-                          style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                          style: TextStyle(color: Paleta.gris600, fontSize: 13),
                         ),
                       ],
                     ),
@@ -451,7 +452,7 @@ class _DetalleCliente extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Paleta.superficie,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [BoxShadow(color: _azul.withValues(alpha: 0.06), blurRadius: 16, offset: const Offset(0, 6))],
       ),
@@ -465,7 +466,7 @@ class _DetalleCliente extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(width: 120, child: Text(titulo, style: TextStyle(color: Colors.grey.shade600, fontSize: 13.5))),
+          SizedBox(width: 120, child: Text(titulo, style: TextStyle(color: Paleta.gris600, fontSize: 13.5))),
           Expanded(child: Text(valor, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14))),
         ],
       ),

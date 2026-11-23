@@ -1,4 +1,13 @@
+import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
+
+/// Sin internet, Firestore guarda la escritura en el celular y el `await` no termina
+/// hasta que vuelve la conexión: el botón se quedaba cargando para siempre.
+/// Con este límite la pantalla se libera y se avisa al usuario. La escritura NO se
+/// pierde: Firestore la envía sola cuando vuelve la conexión.
+extension ConLimite<T> on Future<T> {
+  Future<T> conLimite([Duration limite = const Duration(seconds: 20)]) => timeout(limite);
+}
 
 /// Si el error es por un índice faltante, devuelve el enlace de la consola
 /// de Firebase que lo crea con un clic.
@@ -33,5 +42,9 @@ String mensajeError(Object e) {
     }
   }
   if (e is StateError) return e.message;
+  if (e is TimeoutException) {
+    return 'La conexión está lenta o sin internet. Tu cambio quedó guardado en el celular '
+        'y se enviará solo al volver la conexión; no lo repitas.';
+  }
   return 'Ocurrió un error inesperado. Inténtalo de nuevo.';
 }

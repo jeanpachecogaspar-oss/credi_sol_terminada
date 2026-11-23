@@ -94,7 +94,7 @@ class _SensoresScreenState extends State<SensoresScreen> {
         children: [
           Text(
             'Valores en tiempo real. Mueve, gira o inclina el celular para ver cómo cambian.',
-            style: TextStyle(color: Colors.grey.shade700),
+            style: TextStyle(color: Paleta.gris700),
           ),
           const SizedBox(height: 14),
           tarjetaBlanca(
@@ -118,7 +118,7 @@ class _SensoresScreenState extends State<SensoresScreen> {
           Text(
             'CrediSol usa el acelerómetro en el "Modo privado" (boca abajo o agitar oculta los montos) y '
             'en la inclinación 3D del inicio de sesión.',
-            style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5),
+            style: TextStyle(color: Paleta.gris600, fontSize: 12.5),
           ),
         ],
       ),
@@ -130,7 +130,7 @@ class _SensoresScreenState extends State<SensoresScreen> {
       children: [
         Icon(icono, color: AppColors.azul),
         const SizedBox(height: 4),
-        Text(titulo, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+        Text(titulo, style: TextStyle(color: Paleta.gris600, fontSize: 12)),
         Text(valor, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w700)),
       ],
     );
@@ -156,7 +156,7 @@ class _SensoresScreenState extends State<SensoresScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(titulo, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
-                      Text(sub, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                      Text(sub, style: TextStyle(color: Paleta.gris600, fontSize: 12)),
                     ],
                   ),
                 ),
@@ -167,9 +167,9 @@ class _SensoresScreenState extends State<SensoresScreen> {
             ),
             const SizedBox(height: 12),
             if (error)
-              Text('Este celular no tiene este sensor.', style: TextStyle(color: Colors.grey.shade600))
+              Text('Este celular no tiene este sensor.', style: TextStyle(color: Paleta.gris600))
             else if (l == null)
-              Text('Esperando lectura…', style: TextStyle(color: Colors.grey.shade600))
+              Text('Esperando lectura…', style: TextStyle(color: Paleta.gris600))
             else
               Row(
                 children: [
@@ -192,7 +192,7 @@ class _SensoresScreenState extends State<SensoresScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 4),
         child: Column(
           children: [
-            Text(eje, style: TextStyle(color: Colors.grey.shade600, fontSize: 12, fontWeight: FontWeight.w700)),
+            Text(eje, style: TextStyle(color: Paleta.gris600, fontSize: 12, fontWeight: FontWeight.w700)),
             Text(v.toStringAsFixed(2), style: const TextStyle(fontWeight: FontWeight.w700)),
             const SizedBox(height: 4),
             ClipRRect(
@@ -210,7 +210,7 @@ class _SensoresScreenState extends State<SensoresScreen> {
                         ),
                       ),
                     ),
-                    Container(width: 1, color: Colors.grey.shade400),
+                    Container(width: 1, color: Paleta.gris400),
                     Expanded(
                       child: Align(
                         alignment: Alignment.centerLeft,

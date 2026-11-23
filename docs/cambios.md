@@ -127,6 +127,22 @@ configuran en `config_pagos.dart` (`ConfigAgencias`).
 Los cálculos de las 4 ideas están en `ideas_calculos.dart` y tienen pruebas en `test/ideas_test.dart`.
 Se agregaron reglas para `gruposComunales` en `firestore.rules` (ya publicadas en el proyecto `credisol-app`).
 
+## 2g. Sexta revisión (feedback del 18/11: acceso, diseño, productos, notificaciones)
+
+| Observación | Qué se hizo | Dónde |
+|---|---|---|
+| **Headers diferentes en cada pantalla** | Un solo encabezado para todas las pantallas (cliente y admin): azul de la marca, título blanco y esquinas redondeadas, igual al de Inicio. Se define una vez en el tema | `app_theme.dart` |
+| **No se veían los productos** | Si el catálogo aún no está en Firebase, la app muestra los 40 productos incluidos (con imágenes) en vez de la lista vacía | `creditos_screen.dart` |
+| **Notificaciones de acciones con fallas** | Los avisos ya no se encolan (el nuevo reemplaza al anterior; antes llegaban tarde). Se agregaron avisos de éxito que faltaban (crear/editar/eliminar crédito y promoción, cambiar monto en banca comunal) | `avisos.dart` y pantallas |
+| **Problemas para ingresar** | Mensajes claros si la cuenta está bloqueada por intentos o deshabilitada. **Ingreso con huella** (o PIN del celular): bloquea la app al abrirla y tras 2 min en segundo plano, tapa los montos en "apps recientes"; nunca guarda la contraseña | `login_screen.dart`, `huella.dart` |
+| **Muchas operaciones a la vez** | Confirmar pago lee las cuotas en paralelo (transacción más corta). Sin internet, los botones ya no se quedan cargando para siempre: a los 20 s avisan que el cambio se enviará al volver la conexión | `cobranzas_screen.dart`, `errores.dart` |
+| **Modo oscuro** | Perfil › Apariencia (y Ajustes en el Panel del admin): Claro, Oscuro o Según el celular. Las pantallas de acceso se mantienen claras | `app_theme.dart`, `main.dart` |
+
+Se eliminaron los archivos obsoletos de la tienda, el splash y el rastreo GPS.
+
+**Pendiente en Firebase (proyecto `credisol-app`):** la cuenta admin debe tener `rol: "admin"` en `usuarios`, y
+desde ella cargar el catálogo (Créditos › Cargar 40 productos de ejemplo).
+
 ## 3. Archivos (versión actual)
 
 Nuevos: `mapas.dart`, `cercanos_screen.dart`, `ubicar_negocio_screen.dart`, `mapa_visitas_screen.dart`,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'avisos.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
@@ -146,7 +147,7 @@ class ClienteInicioScreen extends StatelessWidget {
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),
           if (fecha != null)
-            Text('Enviada ${haceTiempo(fecha)}', style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+            Text('Enviada ${haceTiempo(fecha)}', style: TextStyle(color: Paleta.gris600, fontSize: 13)),
           const SizedBox(height: 12),
           Row(
             children: [
@@ -189,7 +190,7 @@ class ClienteInicioScreen extends StatelessWidget {
           Text(
             'Simula cuánto pagarías y envía tu solicitud en minutos.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey.shade600),
+            style: TextStyle(color: Paleta.gris600),
           ),
           const SizedBox(height: 16),
           SizedBox(
@@ -227,7 +228,7 @@ class _TarjetaPrestamoActivo extends StatelessWidget {
 
         return Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Paleta.superficie,
             borderRadius: BorderRadius.circular(22),
             boxShadow: [
               BoxShadow(color: AppColors.azul.withValues(alpha: 0.08), blurRadius: 24, offset: const Offset(0, 10)),
@@ -243,11 +244,11 @@ class _TarjetaPrestamoActivo extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Text('Saldo pendiente', style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+                        Text('Saldo pendiente', style: TextStyle(color: Paleta.gris600, fontSize: 13)),
                         const Spacer(),
                         Text(
                           'Préstamo de ${fmtMoney(aNum(p['monto']))}',
-                          style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5),
+                          style: TextStyle(color: Paleta.gris600, fontSize: 12.5),
                         ),
                       ],
                     ),
@@ -262,14 +263,14 @@ class _TarjetaPrestamoActivo extends StatelessWidget {
                       child: LinearProgressIndicator(
                         value: total == 0 ? 0 : pagadas / total,
                         minHeight: 8,
-                        backgroundColor: Colors.grey.shade200,
+                        backgroundColor: Paleta.gris200,
                         color: AppColors.verde,
                       ),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       '$pagadas de $total cuotas pagadas',
-                      style: TextStyle(color: Colors.grey.shade700, fontSize: 13, fontWeight: FontWeight.w600),
+                      style: TextStyle(color: Paleta.gris700, fontSize: 13, fontWeight: FontWeight.w600),
                     ),
                     if (enVerificacion > 0)
                       Padding(
@@ -296,7 +297,7 @@ class _TarjetaPrestamoActivo extends StatelessWidget {
                     enVerificacion > 0
                         ? 'Estamos verificando tu último pago.'
                         : 'No tienes cuotas pendientes.',
-                    style: TextStyle(color: Colors.grey.shade700),
+                    style: TextStyle(color: Paleta.gris700),
                   ),
                 ),
               Padding(
@@ -334,7 +335,7 @@ class _TarjetaPrestamoActivo extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Próxima cuota (${c['numero']})', style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+          Text('Próxima cuota (${c['numero']})', style: TextStyle(color: Paleta.gris600, fontSize: 13)),
           const SizedBox(height: 4),
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -345,7 +346,7 @@ class _TarjetaPrestamoActivo extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(textoDias, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 13)),
-                  Text(fmtFecha(vence), style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5)),
+                  Text(fmtFecha(vence), style: TextStyle(color: Paleta.gris600, fontSize: 12.5)),
                 ],
               ),
             ],
@@ -407,7 +408,7 @@ class _AccionesRapidas extends StatelessWidget {
     final fuente = await showModalBottomSheet<ImageSource>(
       context: context,
       showDragHandle: true,
-      backgroundColor: Colors.white,
+      backgroundColor: Paleta.superficie,
       builder: (ctx) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -446,7 +447,7 @@ class _AccionesRapidas extends StatelessWidget {
     showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
-      backgroundColor: Colors.white,
+      backgroundColor: Paleta.superficie,
       builder: (ctx) => _ResultadoDni(dni: dni, dniCuenta: dniCuenta),
     );
   }
@@ -462,7 +463,7 @@ class _AccionesRapidas extends StatelessWidget {
               icono: Icons.document_scanner_rounded,
               etiqueta: 'CÁMARA',
               titulo: 'Escanear DNI',
-              pie: Text('Cámara o galería', style: TextStyle(fontSize: 10.5, color: Colors.grey.shade600)),
+              pie: Text('Cámara o galería', style: TextStyle(fontSize: 10.5, color: Paleta.gris600)),
               color: AppColors.azul,
               onTap: () => _escanearDni(context),
             ),
@@ -481,13 +482,13 @@ class _AccionesRapidas extends StatelessWidget {
                         valueListenable: ModoPrivado.lectura,
                         builder: (context, v, _) => Text(
                           '${v.toStringAsFixed(1)} m/s² · voltea o agita',
-                          style: TextStyle(fontSize: 10.5, color: Colors.grey.shade600),
+                          style: TextStyle(fontSize: 10.5, color: Paleta.gris600),
                         ),
                       )
                     : null,
                 onTap: () {
                   ModoPrivado.alternarSensor();
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  ScaffoldMessenger.of(context).mostrarAviso(SnackBar(
                     content: Text(ModoPrivado.activo.value
                         ? 'Modo privado activo: pon el celular boca abajo o agítalo para ocultar tus montos.'
                         : 'Modo privado desactivado.'),
@@ -524,7 +525,7 @@ class _BotonGrande extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
+      color: Paleta.superficie,
       borderRadius: BorderRadius.circular(20),
       elevation: 0,
       child: InkWell(
@@ -594,7 +595,7 @@ class _ResultadoDni extends StatelessWidget {
                   ]);
                 }
                 if (snap.hasError) {
-                  return Text(snap.error.toString(), style: TextStyle(color: Colors.grey.shade700));
+                  return Text(snap.error.toString(), style: TextStyle(color: Paleta.gris700));
                 }
                 return Row(children: [
                   const Icon(Icons.person_rounded, color: AppColors.azul),
@@ -645,7 +646,7 @@ class _PagarCerca extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
       child: Material(
-        color: Colors.white,
+        color: Paleta.superficie,
         borderRadius: BorderRadius.circular(20),
         child: ListTile(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),

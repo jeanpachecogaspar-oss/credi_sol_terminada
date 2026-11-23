@@ -32,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _indice,
         onDestinationSelected: _irA,
-        backgroundColor: Colors.white,
+        backgroundColor: Paleta.superficie,
         indicatorColor: AppColors.azul.withValues(alpha: 0.12),
         destinations: const [
           NavigationDestination(

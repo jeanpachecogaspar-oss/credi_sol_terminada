@@ -9,6 +9,7 @@ import 'rol_cache.dart';
 import 'seleccion_creditos.dart';
 import 'sensores_camara.dart';
 import 'home_screen.dart';
+import 'huella.dart';
 import 'cliente_shell.dart';
 
 class AuthGate extends StatelessWidget {
@@ -27,10 +28,12 @@ class AuthGate extends StatelessWidget {
           Recordatorios.cancelarTodo();
           SeleccionCreditos.instancia.olvidarUsuario();
           ModoPrivado.reiniciar();
-          pantalla = const LoginScreen();
+          // El login tiene su propio diseño claro: se mantiene aunque la app esté en modo oscuro.
+          pantalla = Theme(data: AppTheme.claro, child: const LoginScreen());
         } else {
           final uid = authSnap.data!.uid;
-          pantalla = _RolGate(key: ValueKey(uid), uid: uid);
+          // La huella bloquea toda la app del usuario (cliente o administrador).
+          pantalla = BloqueoHuella(key: ValueKey(uid), uid: uid, child: _RolGate(uid: uid));
         }
         // Transición suave entre login, carga y la app.
         return AnimatedSwitcher(
@@ -49,7 +52,7 @@ class AuthGate extends StatelessWidget {
 /// se muestra un error con opción de reintentar o cerrar sesión.
 class _RolGate extends StatefulWidget {
   final String uid;
-  const _RolGate({super.key, required this.uid});
+  const _RolGate({required this.uid});
 
   @override
   State<_RolGate> createState() => _RolGateState();
@@ -180,7 +183,7 @@ class _ErrorPerfil extends StatelessWidget {
               Text(
                 texto,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 15, color: Colors.grey.shade700, height: 1.4),
+                style: TextStyle(fontSize: 15, color: Paleta.gris700, height: 1.4),
               ),
               const SizedBox(height: 28),
               SizedBox(
@@ -233,11 +236,11 @@ class _Cargando extends StatelessWidget {
           children: [
             const CircularProgressIndicator(),
             const SizedBox(height: 16),
-            Text(texto!, style: TextStyle(color: Colors.grey.shade700)),
+            Text(texto!, style: TextStyle(color: Paleta.gris700)),
             const SizedBox(height: 8),
             Text(
               'Verifica tu conexión a internet.',
-              style: TextStyle(color: Colors.grey.shade500, fontSize: 12.5),
+              style: TextStyle(color: Paleta.gris500, fontSize: 12.5),
             ),
             const SizedBox(height: 16),
             TextButton(

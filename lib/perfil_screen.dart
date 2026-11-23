@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'avisos.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,6 +8,7 @@ import 'datos_personales.dart';
 import 'errores.dart';
 import 'formato.dart';
 import 'historial_pagos_screen.dart';
+import 'huella.dart';
 import 'soporte.dart';
 import 'ui_comun.dart';
 
@@ -52,7 +54,7 @@ class PerfilScreen extends StatelessWidget {
                       children: [
                         Text(nombre.isEmpty ? 'Sin nombre' : nombre,
                             style: const TextStyle(fontSize: 19, fontWeight: FontWeight.bold)),
-                        Text(user.email ?? '', style: TextStyle(color: Colors.grey.shade600)),
+                        Text(user.email ?? '', style: TextStyle(color: Paleta.gris600)),
                       ],
                     ),
                   ),
@@ -89,7 +91,7 @@ class PerfilScreen extends StatelessWidget {
                         padding: const EdgeInsets.only(top: 6),
                         child: Text(
                           'Tus datos se completan al enviar tu primera solicitud.',
-                          style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5),
+                          style: TextStyle(color: Paleta.gris600, fontSize: 12.5),
                         ),
                       ),
                   ],
@@ -105,6 +107,8 @@ class PerfilScreen extends StatelessWidget {
                       'Historial de pagos',
                       () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HistorialPagosScreen())),
                     ),
+                    const InterruptorHuella(),
+                    const SelectorTema(),
                     _opcion(Icons.lock_reset_rounded, 'Cambiar contraseña', () => _cambiarContrasena(context)),
                     _opcion(Icons.privacy_tip_outlined, 'Privacidad y mis datos', () => _privacidad(context, d)),
                     _opcion(Icons.chat_rounded, 'Soporte por WhatsApp', () => abrirWhatsApp(context)),
@@ -149,7 +153,7 @@ class PerfilScreen extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: Paleta.superficie,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (ctx) => SafeArea(
         child: SingleChildScrollView(
@@ -166,11 +170,11 @@ class PerfilScreen extends StatelessWidget {
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 10),
-              Text(textoConsentimiento(), style: TextStyle(color: Colors.grey.shade700, height: 1.4)),
+              Text(textoConsentimiento(), style: TextStyle(color: Paleta.gris700, height: 1.4)),
               const SizedBox(height: 10),
               Text(
                 'Ubicación: solo se usa mientras la app está abierta. Nunca accedemos a tus contactos, mensajes ni galería.',
-                style: TextStyle(color: Colors.grey.shade700, height: 1.4),
+                style: TextStyle(color: Paleta.gris700, height: 1.4),
               ),
             ],
           ),
@@ -240,12 +244,12 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
         'ocupacion': _ocupacion.text.trim(),
         'ingresoMensual': double.parse(_ingreso.text.trim().replaceAll(',', '.')),
         'fechaActualizacion': FieldValue.serverTimestamp(),
-      });
+      }).conLimite();
       navigator.pop();
-      messenger.showSnackBar(const SnackBar(content: Text('Datos actualizados')));
+      messenger.mostrarAviso(const SnackBar(content: Text('Datos actualizados')));
     } catch (e) {
       debugPrint('Error al guardar perfil: $e');
-      messenger.showSnackBar(SnackBar(content: Text('No se pudieron guardar. ${mensajeError(e)}')));
+      messenger.mostrarAviso(SnackBar(content: Text('No se pudieron guardar. ${mensajeError(e)}')));
     } finally {
       if (mounted) setState(() => _guardando = false);
     }
@@ -274,7 +278,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
                     Text(
                       'Por seguridad, el DNI y la fecha de nacimiento no se pueden cambiar desde la app. '
                       'Si hay un error, escríbenos por WhatsApp.',
-                      style: TextStyle(fontSize: 12.5, color: Colors.grey.shade600),
+                      style: TextStyle(fontSize: 12.5, color: Paleta.gris600),
                     ),
                   ],
                 ),
@@ -390,7 +394,7 @@ class _CambiarContrasenaDialogState extends State<_CambiarContrasenaDialog> {
       );
       await user.updatePassword(nueva);
       navigator.pop();
-      messenger.showSnackBar(const SnackBar(content: Text('Contraseña actualizada')));
+      messenger.mostrarAviso(const SnackBar(content: Text('Contraseña actualizada')));
     } on FirebaseAuthException catch (e) {
       setState(() => _error = switch (e.code) {
             'wrong-password' || 'invalid-credential' => 'La contraseña actual no es correcta',

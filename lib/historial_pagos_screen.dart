@@ -128,7 +128,7 @@ class _HistorialPrestamo extends StatelessWidget {
             if (!snap.hasData) return const Center(child: CircularProgressIndicator());
             final eventos = _eventos(snap.data!.docs);
             if (eventos.isEmpty) {
-              return Text('Sin pagos reportados todavía.', style: TextStyle(color: Colors.grey.shade600));
+              return Text('Sin pagos reportados todavía.', style: TextStyle(color: Paleta.gris600));
             }
             return Column(
               children: [
@@ -177,9 +177,9 @@ class _HistorialPrestamo extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 4),
-          Text('${e.medio} · Op. ${e.operacion}', style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
+          Text('${e.medio} · Op. ${e.operacion}', style: TextStyle(color: Paleta.gris700, fontSize: 13)),
           if (e.fecha != null)
-            Text(fechaHora(e.fecha!), style: TextStyle(color: Colors.grey.shade500, fontSize: 12)),
+            Text(fechaHora(e.fecha!), style: TextStyle(color: Paleta.gris500, fontSize: 12)),
           if (e.motivo != null && e.motivo!.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 4),

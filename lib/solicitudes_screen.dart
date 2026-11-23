@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'avisos.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'app_theme.dart';
@@ -124,10 +125,10 @@ class _SolicitudesScreenState extends State<SolicitudesScreen> {
                   const SizedBox(height: 2),
                   Text(
                     '${fmtMoney(aNum(p['monto']))} · ${p['plazoMeses']} meses',
-                    style: TextStyle(color: Colors.grey.shade700, fontSize: 13.5),
+                    style: TextStyle(color: Paleta.gris700, fontSize: 13.5),
                   ),
                   if (fecha != null)
-                    Text(haceTiempo(fecha), style: TextStyle(color: Colors.grey.shade500, fontSize: 12)),
+                    Text(haceTiempo(fecha), style: TextStyle(color: Paleta.gris500, fontSize: 12)),
                 ],
               ),
             ),
@@ -204,10 +205,10 @@ class _DetalleSolicitud extends StatelessWidget {
           'tcea': double.parse(calcularTcea(monto, cuotas.map((c) => c.cuota).toList()).toStringAsFixed(2)),
         });
       });
-      messenger.showSnackBar(const SnackBar(content: Text('Préstamo aprobado y cronograma generado')));
+      messenger.mostrarAviso(const SnackBar(content: Text('Préstamo aprobado y cronograma generado')));
     } catch (e) {
       debugPrint('Error al aprobar: $e');
-      messenger.showSnackBar(SnackBar(content: Text('No se pudo aprobar. ${mensajeError(e)}')));
+      messenger.mostrarAviso(SnackBar(content: Text('No se pudo aprobar. ${mensajeError(e)}')));
     }
   }
 
@@ -226,10 +227,10 @@ class _DetalleSolicitud extends StatelessWidget {
           'rechazadoPor': FirebaseAuth.instance.currentUser?.uid,
         });
       });
-      messenger.showSnackBar(const SnackBar(content: Text('Solicitud rechazada')));
+      messenger.mostrarAviso(const SnackBar(content: Text('Solicitud rechazada')));
     } catch (e) {
       debugPrint('Error al rechazar: $e');
-      messenger.showSnackBar(SnackBar(content: Text('No se pudo rechazar. ${mensajeError(e)}')));
+      messenger.mostrarAviso(SnackBar(content: Text('No se pudo rechazar. ${mensajeError(e)}')));
     }
   }
 
@@ -273,9 +274,9 @@ class _DetalleSolicitud extends StatelessWidget {
                   top: false,
                   child: Container(
                     padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      border: Border(top: BorderSide(color: Color(0xFFE8ECF3))),
+                    decoration: BoxDecoration(
+                      color: Paleta.superficie,
+                      border: Border(top: BorderSide(color: Paleta.borde)),
                     ),
                     child: Row(
                       children: [

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'avisos.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -195,7 +196,7 @@ class _MisPrestamosScreenState extends State<MisPrestamosScreen> {
                       Padding(
                         padding: const EdgeInsets.all(32),
                         child: Text('No hay préstamos en esta sección.',
-                            textAlign: TextAlign.center, style: TextStyle(color: Colors.grey.shade600)),
+                            textAlign: TextAlign.center, style: TextStyle(color: Paleta.gris600)),
                       ),
                     for (final d in lista)
                       Padding(
@@ -219,7 +220,7 @@ class _MisPrestamosScreenState extends State<MisPrestamosScreen> {
             Icon(
               Icons.account_balance_wallet_outlined,
               size: 64,
-              color: Colors.grey.shade400,
+              color: Paleta.gris400,
             ),
             const SizedBox(height: 16),
             const Text(
@@ -230,7 +231,7 @@ class _MisPrestamosScreenState extends State<MisPrestamosScreen> {
             Text(
               'Simula tu préstamo en la pestaña Simular y envía tu solicitud.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey.shade600),
+              style: TextStyle(color: Paleta.gris600),
             ),
           ],
         ),
@@ -255,7 +256,7 @@ class _MisPrestamosScreenState extends State<MisPrestamosScreen> {
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Paleta.superficie,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
@@ -284,7 +285,7 @@ class _MisPrestamosScreenState extends State<MisPrestamosScreen> {
             const SizedBox(height: 8),
             Text(
               'Cuota ${fmtMoney(_aNum(p['cuotaMensual']))} • ${p['plazoMeses']} meses',
-              style: TextStyle(color: Colors.grey.shade700),
+              style: TextStyle(color: Paleta.gris700),
             ),
             if (estado == 'Activo') ...[
               const SizedBox(height: 4),
@@ -356,10 +357,10 @@ Future<void> cancelarSolicitud(
         'fechaCancelacion': FieldValue.serverTimestamp(),
       });
     });
-    messenger.showSnackBar(const SnackBar(content: Text('Solicitud cancelada')));
+    messenger.mostrarAviso(const SnackBar(content: Text('Solicitud cancelada')));
   } catch (e) {
     debugPrint('Error al cancelar: $e');
-    messenger.showSnackBar(SnackBar(content: Text('No se pudo cancelar. ${mensajeError(e)}')));
+    messenger.mostrarAviso(SnackBar(content: Text('No se pudo cancelar. ${mensajeError(e)}')));
   }
 }
 
@@ -394,7 +395,7 @@ class LineaTiempoSolicitud extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)),
+      decoration: BoxDecoration(color: Paleta.superficie, borderRadius: BorderRadius.circular(18)),
       child: Column(
         children: [
           for (var i = 0; i < pasos.length; i++)
@@ -405,11 +406,11 @@ class LineaTiempoSolicitud extends StatelessWidget {
                   children: [
                     CircleAvatar(
                       radius: 14,
-                      backgroundColor: pasos[i].$5 ? pasos[i].$3 : Colors.grey.shade200,
-                      child: Icon(pasos[i].$4, size: 15, color: pasos[i].$5 ? Colors.white : Colors.grey.shade500),
+                      backgroundColor: pasos[i].$5 ? pasos[i].$3 : Paleta.gris200,
+                      child: Icon(pasos[i].$4, size: 15, color: pasos[i].$5 ? Colors.white : Paleta.gris500),
                     ),
                     if (i < pasos.length - 1)
-                      Container(width: 2, height: 26, color: Colors.grey.shade300),
+                      Container(width: 2, height: 26, color: Paleta.gris300),
                   ],
                 ),
                 const SizedBox(width: 12),
@@ -423,11 +424,11 @@ class LineaTiempoSolicitud extends StatelessWidget {
                           pasos[i].$1,
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
-                            color: pasos[i].$5 ? null : Colors.grey.shade500,
+                            color: pasos[i].$5 ? null : Paleta.gris500,
                           ),
                         ),
                         if (pasos[i].$2 != null)
-                          Text(pasos[i].$2!, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+                          Text(pasos[i].$2!, style: TextStyle(fontSize: 12, color: Paleta.gris600)),
                       ],
                     ),
                   ),
@@ -534,7 +535,7 @@ class DetallePrestamoCliente extends StatelessWidget {
                       child: LinearProgressIndicator(
                         value: cuotas.isEmpty ? 0 : pagadas / cuotas.length,
                         minHeight: 8,
-                        backgroundColor: Colors.grey.shade200,
+                        backgroundColor: Paleta.gris200,
                         color: _verde,
                       ),
                     ),
@@ -584,7 +585,7 @@ class DetallePrestamoCliente extends StatelessWidget {
     return [
       Text(
         'Referencial: las fechas definitivas se calculan desde el día de la aprobación.',
-        style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5),
+        style: TextStyle(color: Paleta.gris600, fontSize: 12.5),
       ),
       const SizedBox(height: 10),
       for (final c in cuotas)
@@ -592,7 +593,7 @@ class DetallePrestamoCliente extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 8),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Paleta.superficie,
             borderRadius: BorderRadius.circular(14),
           ),
           child: Row(
@@ -740,7 +741,7 @@ class DetallePrestamoCliente extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Paleta.superficie,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -768,11 +769,11 @@ class DetallePrestamoCliente extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   'Vence ${fmtFecha(fecha)}',
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                  style: TextStyle(color: Paleta.gris600, fontSize: 13),
                 ),
                 Text(
                   'Interés ${fmtNum(_aNum(c['interes']))} Capital ${fmtNum(_aNum(c['amortizacion']))}',
-                  style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
+                  style: TextStyle(color: Paleta.gris500, fontSize: 12),
                 ),
                 if (base == 'Pendiente' &&
                     (c['motivoRechazoPago'] ?? '').toString().isNotEmpty)
@@ -818,7 +819,7 @@ Future<void> mostrarPagar(
   return showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    backgroundColor: Colors.white,
+    backgroundColor: Paleta.superficie,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),
@@ -848,7 +849,7 @@ class PagarSheetState extends State<PagarSheet> {
   Future<void> copiar(String texto, String que) async {
     await Clipboard.setData(ClipboardData(text: texto));
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(context).mostrarAviso(
       SnackBar(content: Text('$que copiado')),
     );
   }
@@ -885,7 +886,7 @@ class PagarSheetState extends State<PagarSheet> {
   Future<void> enviar() async {
     final op = _opCtrl.text.trim();
     if (op.length < 4 || op.length > 40) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).mostrarAviso(
         const SnackBar(content: Text('Ingresa el número de operación de tu pago (de 4 a 40 caracteres)')),
       );
       return;
@@ -901,19 +902,19 @@ class PagarSheetState extends State<PagarSheet> {
         'medioPago': _medio,
         'numeroOperacion': op,
         'fechaPago': FieldValue.serverTimestamp(),
-      });
+      }).conLimite();
       // La cuota ya no está 'Pendiente': se quitan sus recordatorios.
       final uid = FirebaseAuth.instance.currentUser?.uid;
       if (uid != null) Recordatorios.sincronizar(uid, forzar: true);
       navigator.pop();
-      messenger.showSnackBar(
+      messenger.mostrarAviso(
         const SnackBar(
           content: Text('Constancia enviada. Verificaremos tu pago pronto.'),
         ),
       );
     } catch (e) {
       debugPrint('Error al reportar pago: $e');
-      messenger.showSnackBar(
+      messenger.mostrarAviso(
         SnackBar(content: Text('No se pudo enviar. ${mensajeError(e)}')),
       );
     } finally {
@@ -932,7 +933,7 @@ class PagarSheetState extends State<PagarSheet> {
               children: [
                 Text(
                   titulo,
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  style: TextStyle(fontSize: 12, color: Paleta.gris600),
                 ),
                 Text(
                   valor,
@@ -983,7 +984,7 @@ class PagarSheetState extends State<PagarSheet> {
             const SizedBox(height: 6),
             Text(
               'Abre la app de tu banco, elige Plin y paga a este número.',
-              style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
+              style: TextStyle(fontSize: 13, color: Paleta.gris700),
             ),
             const SizedBox(height: 8),
             FutureBuilder<List<MapEntry<String, String>>>(
@@ -1040,7 +1041,7 @@ class PagarSheetState extends State<PagarSheet> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color: Paleta.gris300,
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
@@ -1052,7 +1053,7 @@ class PagarSheetState extends State<PagarSheet> {
             ),
             Text(
               'Vence ${fmtFecha(_aFecha(c['fecha']))}',
-              style: TextStyle(color: Colors.grey.shade600),
+              style: TextStyle(color: Paleta.gris600),
             ),
             const SizedBox(height: 12),
             Row(
@@ -1094,7 +1095,7 @@ class PagarSheetState extends State<PagarSheet> {
               width: double.infinity,
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: const Color(0xFFF7F8FA),
+                color: Paleta.campo,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: infoMedio(),

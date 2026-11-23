@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'avisos.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -61,12 +62,12 @@ class _CobranzasScreenState extends State<CobranzasScreen> {
 
     try {
       final completo = await confirmarPagoCuota(doc.reference);
-      messenger.showSnackBar(SnackBar(
+      messenger.mostrarAviso(SnackBar(
         content: Text(completo ? 'Pago confirmado. ¡Préstamo pagado por completo!' : 'Pago confirmado'),
       ));
     } catch (e) {
       debugPrint('Error al confirmar pago: $e');
-      messenger.showSnackBar(SnackBar(content: Text('No se pudo confirmar. ${mensajeError(e)}')));
+      messenger.mostrarAviso(SnackBar(content: Text('No se pudo confirmar. ${mensajeError(e)}')));
     }
   }
 
@@ -77,10 +78,10 @@ class _CobranzasScreenState extends State<CobranzasScreen> {
 
     try {
       await rechazarPagoCuota(doc.reference, motivo);
-      messenger.showSnackBar(const SnackBar(content: Text('Pago rechazado. La cuota volvió a pendiente.')));
+      messenger.mostrarAviso(const SnackBar(content: Text('Pago rechazado. La cuota volvió a pendiente.')));
     } catch (e) {
       debugPrint('Error al rechazar pago: $e');
-      messenger.showSnackBar(SnackBar(content: Text('No se pudo rechazar. ${mensajeError(e)}')));
+      messenger.mostrarAviso(SnackBar(content: Text('No se pudo rechazar. ${mensajeError(e)}')));
     }
   }
 
@@ -171,7 +172,7 @@ class _CobranzasScreenState extends State<CobranzasScreen> {
                   onPressed: () async {
                     final messenger = ScaffoldMessenger.of(context);
                     await Clipboard.setData(ClipboardData(text: operacion));
-                    messenger.showSnackBar(const SnackBar(content: Text('Operación copiada')));
+                    messenger.mostrarAviso(const SnackBar(content: Text('Operación copiada')));
                   },
                 ),
             ],
@@ -259,10 +260,9 @@ Future<bool> confirmarPagoCuota(DocumentReference<Map<String, dynamic>> cuotaRef
     ];
     if (!refs.any((r) => r.id == cuotaRef.id)) refs.add(cuotaRef);
 
-    final cuotas = <DocumentSnapshot<Map<String, dynamic>>>[];
-    for (final r in refs) {
-      cuotas.add(await tx.get(r));
-    }
+    // En paralelo: antes se leían una por una (hasta 24 viajes al servidor seguidos),
+    // la transacción duraba más y chocaba más con otras confirmaciones simultáneas.
+    final cuotas = await Future.wait(refs.map(tx.get));
 
     final actual = cuotas.firstWhere((s) => s.id == cuotaRef.id);
     if (actual.data()?['estado'] != 'Por verificar') {

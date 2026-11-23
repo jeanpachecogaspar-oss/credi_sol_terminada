@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'app_theme.dart';
+import 'avisos.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class RecuperarPasswordScreen extends StatefulWidget {
@@ -33,7 +36,7 @@ class _RecuperarPasswordScreenState extends State<RecuperarPasswordScreen> {
 
   void _mensaje(String texto) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(texto)));
+    ScaffoldMessenger.of(context).mostrarAviso(SnackBar(content: Text(texto)));
   }
 
   Future<void> _enviarCorreo() async {
@@ -79,13 +82,19 @@ class _RecuperarPasswordScreenState extends State<RecuperarPasswordScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  // Las pantallas de acceso tienen su propio diseño claro (degradado celeste):
+  // se mantienen claras aunque la app esté en modo oscuro.
+  Widget build(BuildContext context) =>
+      Theme(data: AppTheme.claro, child: Builder(builder: _pantallaClara));
+
+  Widget _pantallaClara(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: const Color(0xFF1A1A2E),
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
       ),
       body: Stack(
         children: [

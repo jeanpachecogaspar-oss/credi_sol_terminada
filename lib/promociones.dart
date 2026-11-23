@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'avisos.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'app_theme.dart';
 import 'config_drive.dart';
@@ -176,7 +177,7 @@ class _CarruselPromocionesState extends State<CarruselPromociones> {
                         width: i == _actual ? 18 : 6,
                         height: 6,
                         decoration: BoxDecoration(
-                          color: i == _actual ? AppColors.azul : Colors.grey.shade300,
+                          color: i == _actual ? AppColors.azul : Paleta.gris300,
                           borderRadius: BorderRadius.circular(3),
                         ),
                       ),
@@ -235,7 +236,7 @@ class TarjetaPromocion extends StatelessWidget {
                     child: Text(
                       personal ? 'SOLO PARA TI' : 'PROMOCIÓN',
                       style: TextStyle(
-                        color: personal ? AppColors.texto : Colors.white,
+                        color: personal ? Paleta.texto : Colors.white,
                         fontSize: 10.5,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 0.8,
@@ -402,7 +403,7 @@ class _PromocionesAdminState extends State<PromocionesAdmin> with AutomaticKeepA
                           if (!p.activo) 'Pausada',
                           if (p.activo && !p.vigente) 'Vencida',
                         ].join(' · '),
-                        style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5),
+                        style: TextStyle(color: Paleta.gris600, fontSize: 12.5),
                       ),
                     ),
                   ],
@@ -465,11 +466,11 @@ class _FormPromocionState extends State<_FormPromocion> {
     final messenger = ScaffoldMessenger.of(context);
     final titulo = _titulo.text.trim();
     if (titulo.length < 3) {
-      messenger.showSnackBar(const SnackBar(content: Text('Escribe un título')));
+      messenger.mostrarAviso(const SnackBar(content: Text('Escribe un título')));
       return;
     }
     if (_para == 'seleccionados' && _clientes.isEmpty) {
-      messenger.showSnackBar(const SnackBar(content: Text('Elige al menos un cliente')));
+      messenger.mostrarAviso(const SnackBar(content: Text('Elige al menos un cliente')));
       return;
     }
     setState(() => _guardando = true);
@@ -486,13 +487,14 @@ class _FormPromocionState extends State<_FormPromocion> {
     try {
       final col = FirebaseFirestore.instance.collection('promociones');
       if (widget.promo == null) {
-        await col.add({...datos, 'fechaCreacion': FieldValue.serverTimestamp()});
+        await col.add({...datos, 'fechaCreacion': FieldValue.serverTimestamp()}).conLimite();
       } else {
-        await col.doc(widget.promo!.id).update(datos);
+        await col.doc(widget.promo!.id).update(datos).conLimite();
       }
+      messenger.mostrarAviso(SnackBar(content: Text(widget.promo == null ? 'Promoción publicada' : 'Promoción actualizada')));
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text(mensajeError(e))));
+      messenger.mostrarAviso(SnackBar(content: Text(mensajeError(e))));
     } finally {
       if (mounted) setState(() => _guardando = false);
     }
@@ -502,11 +504,14 @@ class _FormPromocionState extends State<_FormPromocion> {
     final p = widget.promo;
     if (p == null) return;
     if (!await confirmar(context, 'Eliminar promoción', '¿Eliminar "${p.titulo}"?', 'Eliminar')) return;
+    if (!mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
     try {
       await FirebaseFirestore.instance.collection('promociones').doc(p.id).delete();
+      messenger.mostrarAviso(const SnackBar(content: Text('Promoción eliminada')));
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(mensajeError(e))));
+      messenger.mostrarAviso(SnackBar(content: Text(mensajeError(e))));
     }
   }
 
@@ -590,7 +595,7 @@ class _FormPromocionState extends State<_FormPromocion> {
             const SizedBox(height: 4),
             Text(
               'Solo estos clientes verán la promoción en su app.',
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5),
+              style: TextStyle(color: Paleta.gris600, fontSize: 12.5),
             ),
           ],
           const SizedBox(height: 8),
@@ -634,7 +639,11 @@ class _SelectorClientesState extends State<_SelectorClientes> {
       appBar: AppBar(
         title: Text('Elegir clientes (${_elegidos.length})'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, _elegidos), child: const Text('Listo')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, _elegidos),
+            style: TextButton.styleFrom(foregroundColor: Colors.white),
+            child: const Text('Listo'),
+          ),
         ],
       ),
       body: FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
@@ -660,10 +669,10 @@ class _SelectorClientesState extends State<_SelectorClientes> {
                 padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
                 child: TextField(
                   onChanged: (v) => setState(() => _buscar = v.trim()),
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     hintText: 'Buscar por nombre, correo o DNI',
-                    prefixIcon: Icon(Icons.search_rounded),
-                    fillColor: Colors.white,
+                    prefixIcon: const Icon(Icons.search_rounded),
+                    fillColor: Paleta.superficie,
                   ),
                 ),
               ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'avisos.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'app_theme.dart';
@@ -68,7 +69,8 @@ class _ClienteHomeScreenState extends State<ClienteHomeScreen> {
   }
 
   void _msg(String t) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t)));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).mostrarAviso(SnackBar(content: Text(t)));
   }
 
   void _solicitar() {
@@ -102,7 +104,7 @@ class _ClienteHomeScreenState extends State<ClienteHomeScreen> {
     final email = FirebaseAuth.instance.currentUser?.email ?? '';
 
     return Scaffold(
-      backgroundColor: AppColors.fondo,
+      backgroundColor: Paleta.fondo,
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -136,7 +138,7 @@ class _ClienteHomeScreenState extends State<ClienteHomeScreen> {
                       'Cálculo referencial con cuotas fijas (sistema francés). Sin comisiones ni seguros. '
                       'Las fechas definitivas se fijan cuando se aprueba el préstamo.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                      style: TextStyle(fontSize: 12, color: Paleta.gris600),
                     ),
                   ],
                 ],
@@ -195,7 +197,7 @@ class _ClienteHomeScreenState extends State<ClienteHomeScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Paleta.superficie,
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(color: azul.withValues(alpha: 0.08), blurRadius: 24, offset: const Offset(0, 10)),
@@ -322,14 +324,14 @@ class _ClienteHomeScreenState extends State<ClienteHomeScreen> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Paleta.superficie,
         borderRadius: BorderRadius.circular(16),
         border: Border(bottom: BorderSide(color: color, width: 3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(titulo, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+          Text(titulo, style: TextStyle(fontSize: 12, color: Paleta.gris600)),
           const SizedBox(height: 4),
           FittedBox(
             fit: BoxFit.scaleDown,
@@ -354,7 +356,7 @@ class _ClienteHomeScreenState extends State<ClienteHomeScreen> {
               headingRowHeight: 44,
               dataRowMinHeight: 40,
               dataRowMaxHeight: 44,
-              headingRowColor: WidgetStateProperty.all(const Color(0xFFEAF2FD)),
+              headingRowColor: WidgetStateProperty.all(AppColors.azul.withValues(alpha: 0.1)),
               columns: const [
                 DataColumn(label: Text('N°', style: TextStyle(fontWeight: FontWeight.bold))),
                 DataColumn(label: Text('Fecha', style: TextStyle(fontWeight: FontWeight.bold))),
@@ -375,7 +377,7 @@ class _ClienteHomeScreenState extends State<ClienteHomeScreen> {
                   ]),
                 ),
                 DataRow(
-                  color: WidgetStateProperty.all(const Color(0xFFFFF8E1)),
+                  color: WidgetStateProperty.all(AppColors.ambar.withValues(alpha: 0.1)),
                   cells: [
                     const DataCell(Text('')),
                     const DataCell(Text('Total', style: TextStyle(fontWeight: FontWeight.bold))),

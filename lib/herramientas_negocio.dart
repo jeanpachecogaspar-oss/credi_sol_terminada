@@ -60,7 +60,7 @@ class HerramientasNegocio extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Material(
-            color: Colors.white,
+            color: Paleta.superficie,
             borderRadius: BorderRadius.circular(20),
             child: ListTile(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -101,7 +101,7 @@ class _Herramienta extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
+      color: Paleta.superficie,
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
@@ -125,7 +125,7 @@ class _Herramienta extends StatelessWidget {
               Text(texto,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 11.5)),
+                  style: TextStyle(color: Paleta.gris600, fontSize: 11.5)),
             ],
           ),
         ),

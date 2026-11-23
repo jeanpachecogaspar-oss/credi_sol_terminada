@@ -78,7 +78,7 @@ class _CuotasTemporadaScreenState extends State<CuotasTemporadaScreen> {
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
         children: [
           Text('Paga más cuando vendes más y menos en tus meses flojos. Toca un mes para cambiarlo.',
-              style: TextStyle(color: Colors.grey.shade700)),
+              style: TextStyle(color: Paleta.gris700)),
           const SizedBox(height: 12),
           tarjetaBlanca(
             child: Column(
@@ -171,7 +171,7 @@ class _CuotasTemporadaScreenState extends State<CuotasTemporadaScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(_meses[_mesDeCuota(k + 1) - 1], style: const TextStyle(fontSize: 11)),
-                        Text('${k + 1}', style: TextStyle(fontSize: 10, color: Colors.grey.shade500)),
+                        Text('${k + 1}', style: TextStyle(fontSize: 10, color: Paleta.gris500)),
                       ],
                     ),
                   ),
@@ -186,7 +186,7 @@ class _CuotasTemporadaScreenState extends State<CuotasTemporadaScreen> {
                 Row(
                   children: [
                     Expanded(child: _comparar('Cuota fija', fmtMoney(fijo.first.cuota), totalCuotas(fijo))),
-                    Container(width: 1, height: 60, color: Colors.grey.shade300),
+                    Container(width: 1, height: 60, color: Paleta.gris300),
                     Expanded(
                       child: _comparar(
                         'Por temporada',
@@ -202,7 +202,7 @@ class _CuotasTemporadaScreenState extends State<CuotasTemporadaScreen> {
                 Text(
                   'Misma tasa (${ConfigPrestamos.descripcionTasa}). Si pagas más al inicio, pagas menos intereses; '
                   'si dejas los meses fuertes para el final, pagas un poco más.',
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  style: TextStyle(fontSize: 12, color: Paleta.gris600),
                 ),
               ],
             ),
@@ -231,11 +231,11 @@ class _CuotasTemporadaScreenState extends State<CuotasTemporadaScreen> {
   Widget _comparar(String titulo, String cuota, double total) {
     return Column(
       children: [
-        Text(titulo, style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5)),
+        Text(titulo, style: TextStyle(color: Paleta.gris600, fontSize: 12.5)),
         const SizedBox(height: 4),
         FittedBox(child: Text(cuota, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15))),
         const SizedBox(height: 2),
-        Text('Total ${fmtMoney(total)}', style: TextStyle(fontSize: 12, color: Colors.grey.shade700)),
+        Text('Total ${fmtMoney(total)}', style: TextStyle(fontSize: 12, color: Paleta.gris700)),
       ],
     );
   }
